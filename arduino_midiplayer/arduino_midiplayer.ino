@@ -125,7 +125,8 @@ void setup() {
   
   // 连接WiFi网络
   Serial.println("正在连接WiFi...");
-  WiFi.begin("jsjqr777", "js123456");
+  // WiFi.begin("jsjqr777", "js123456");
+  WiFi.begin("LIUYU_Iphone", "19940704");
   int wifi_attempts = 0;
   while (WiFi.status() != WL_CONNECTED && wifi_attempts < 20) {
     delay(500);
