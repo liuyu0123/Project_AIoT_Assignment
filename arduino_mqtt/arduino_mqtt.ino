@@ -3,9 +3,10 @@
  
 // ====== 配置区域 ======
 // 以下是用户需要配置的部分，包括WiFi和MQTT服务器的信息
-const char* ssid = "YourWiFiName";          // WiFi 名称 (与电脑要同一网络)，替换为你的WiFi SSID
-const char* password = "YourWiFiPassword";  // WiFi 密码，替换为你的WiFi密码
-const char* mqtt_server = "192.168.1.100";  // Windows 主机的局域网 IP，替换为你的MQTT服务器IP地址
+const char* ssid = "LIUYU_Iphone";          // WiFi 名称 (与电脑要同一网络)，替换为你的WiFi SSID
+const char* password = "19940704";  // WiFi 密码，替换为你的WiFi密码
+// const char* mqtt_server = "192.168.1.100";  // Windows 主机的局域网 IP，替换为你的MQTT服务器IP地址
+const char* mqtt_server = "172.20.10.9";  // Windows 主机的局域网 IP，替换为你的MQTT服务器IP地址
  
 WiFiClient espClient;           // 创建一个WiFiClient对象，用于TCP连接
 PubSubClient client(espClient); // 创建PubSubClient对象，基于WiFiClient，用于MQTT通信
@@ -22,7 +23,7 @@ void callback(char* topic, byte* message, unsigned int length) {  Serial.print("
  
 // 重新连接MQTT服务器的函数，如果连接断开则尝试重连
 void reconnect() {  while (!client.connected()) {    // 循环直到连接成功
-    Serial.print("尝试连接MQTT..."); // 打印连接尝试提示
+    Serial.print("\n尝试连接MQTT..."); // 打印连接尝试提示
     if (client.connect("ESP32Client")) { // 尝试连接MQTT服务器，使用客户端ID "ESP32Client"
       Serial.println("成功!");           // 连接成功提示
       client.subscribe("test/topic");    // 订阅主题 "test/topic"
