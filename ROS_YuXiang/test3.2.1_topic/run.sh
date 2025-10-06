@@ -5,6 +5,10 @@
 # # ros2 run demo_python_topic python_topic
 # ros2 run demo_python_topic python_speak
 
+# colcon build --packages-select demo_cpp_topic
+# source install/setup.bash
+# ros2 run demo_cpp_topic turtle_circle
+
 colcon build --packages-select demo_cpp_topic
 source install/setup.bash
-ros2 run demo_cpp_topic turtle_circle
+ros2 run demo_cpp_topic turtle_control
