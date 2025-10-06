@@ -16,6 +16,12 @@
 
 
 
-colcon build --packages-select demo_python_pkg
+# colcon build --packages-select demo_python_pkg
+# source install/setup.bash
+# ros2 run demo_python_pkg learn_thread
+
+
+# c++ thread
+colcon build --packages-select demo_cpp_pkg
 source install/setup.bash
-ros2 run demo_python_pkg learn_thread
+ros2 run demo_cpp_pkg learn_thread
