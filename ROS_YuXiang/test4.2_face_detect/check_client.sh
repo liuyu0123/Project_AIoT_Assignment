@@ -1,0 +1,2 @@
+source install/setup.bash
+ros2 run demo_python_service face_detect_server

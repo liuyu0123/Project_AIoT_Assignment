@@ -10,6 +10,7 @@ import time
 class FaceDetectorionNode(Node):
     def __init__(self):
         super().__init__("face_detection_node")
+        self.bridge = CvBridge()
         self.service = self.create_service(FaceDetector, "/face_detect", self.detect_face_callback)
         self.default_image_path = get_package_share_directory('demo_python_service') \
             + '/resource/default.jpg'
