@@ -2,14 +2,20 @@
 #include "rclcpp/rclcpp.hpp"
 #include "turtlesim/msg/pose.hpp"
 #include "chapt4_interfaces/srv/patrol.hpp"
+#include "rcl_interfaces/msg/set_parameters_result.hpp"
 
 using Patrol = chapt4_interfaces::srv::Patrol;
+using SetParametersResult = rcl_interfaces::msg::SetParametersResult;
 
 class TurtleController : public rclcpp::Node
 {
 public:
     TurtleController() : Node("turtle_controller")
     {
+        this->declare_parameter<double>("k", 1.0);
+        this->declare_parameter<double>("max_speed", 3.0);
+        this->get_parameter("k", k_);
+        this->get_parameter("max_speed", max_speed_);
         velocity_publisher_ = this->create_publisher<geometry_msgs::msg::Twist>(
             "turtle1/cmd_vel", 10);
         pose_subscription_ = this->create_subscription<turtlesim::msg::Pose>(
@@ -32,6 +38,27 @@ public:
                 {
                     response->result = Patrol::Response::FAIL;
                 }
+            });
+        // 添加参数设置回调
+        parameters_callback_handle_ = this->add_on_set_parameters_callback(
+            [&](const std::vector<rclcpp::Parameter> &params) -> SetParametersResult
+            {
+                for (auto &param : params)
+                {
+                    RCLCPP_INFO(this->get_logger(), "Parameter %s changed to %f",
+                                param.get_name().c_str(), param.as_double());
+                    if (param.get_name() == "k")
+                    {
+                        k_ = param.as_double();
+                    }
+                    else if (param.get_name() == "max_speed")
+                    {
+                        max_speed_ = param.as_double();
+                    }
+                }
+                auto result = SetParametersResult();
+                result.successful = true;
+                return result;
             });
     }
 
@@ -107,6 +134,7 @@ private:
     double k_{1.0};
     double max_speed_{3.0};
     double max_angular_{2.0}; // rad/s
+    OnSetParametersCallbackHandle::SharedPtr parameters_callback_handle_;
 };
 
 int main(int argc, char **argv)
