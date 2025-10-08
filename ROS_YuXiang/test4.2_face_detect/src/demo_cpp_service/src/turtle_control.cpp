@@ -1,6 +1,9 @@
 #include "geometry_msgs/msg/twist.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include "turtlesim/msg/pose.hpp"
+#include "chapt4_interfaces/srv/patrol.hpp"
+
+using Patrol = chapt4_interfaces::srv::Patrol;
 
 class TurtleController : public rclcpp::Node
 {
@@ -12,6 +15,24 @@ public:
         pose_subscription_ = this->create_subscription<turtlesim::msg::Pose>(
             "turtle1/pose", 10,
             std::bind(&TurtleController::on_pose_received2_, this, std::placeholders::_1));
+        patrol_server_ = this->create_service<Patrol>(
+            "patrol",
+            [&](const std::shared_ptr<Patrol::Request> request,
+                std::shared_ptr<Patrol::Response> response) -> void
+            {
+                // 判断巡逻点是否在模拟器边界内
+                if (request->target_x >= 0.0 && request->target_x <= 12.0 &&
+                    request->target_y >= 0.0 && request->target_y <= 12.0)
+                {
+                    target_x_ = request->target_x;
+                    target_y_ = request->target_y;
+                    response->result = Patrol::Response::SUCCESS;
+                }
+                else
+                {
+                    response->result = Patrol::Response::FAIL;
+                }
+            });
     }
 
 private:
@@ -80,6 +101,7 @@ private:
 private:
     rclcpp::Subscription<turtlesim::msg::Pose>::SharedPtr pose_subscription_;
     rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr velocity_publisher_;
+    rclcpp::Service<Patrol>::SharedPtr patrol_server_;
     double target_x_{1.0};
     double target_y_{1.0};
     double k_{1.0};

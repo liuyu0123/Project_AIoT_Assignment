@@ -12,6 +12,14 @@ find_package(chapt4_interfaces REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(turtlesim REQUIRED)
 
+add_executable(turtle_control src/turtle_control.cpp)
+ament_target_dependencies(turtle_control rclcpp chapt4_interfaces geometry_msgs turtlesim)
+
+install(TARGETS
+  turtle_control
+  DESTINATION lib/${PROJECT_NAME})
+
+
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
   # the following line skips the linter which checks for copyrights
