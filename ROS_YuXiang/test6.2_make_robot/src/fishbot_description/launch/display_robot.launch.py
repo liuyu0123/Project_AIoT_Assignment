@@ -7,6 +7,7 @@ def generate_launch_description():
     # 获取配置文件路径
     urdf_tutorial_path = get_package_share_directory('fishbot_description')
     default_model_path = urdf_tutorial_path + '/urdf/first_robot.urdf'
+    default_rviz_config_path = urdf_tutorial_path + '/config/rviz/display_model.rviz'
     # 声明launch参数
     action_declare_arg_mode_path = launch.actions.DeclareLaunchArgument(
         name='mode_path',
@@ -43,6 +44,7 @@ def generate_launch_description():
         executable='rviz2',
         name='rviz2',
         output='both',
+        arguments=['-d', default_rviz_config_path],
         parameters=[
         ]
     )
