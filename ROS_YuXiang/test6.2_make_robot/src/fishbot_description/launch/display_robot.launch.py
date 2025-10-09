@@ -17,7 +17,7 @@ def generate_launch_description():
     # 获取文件内容生成新的参数
     robot_description = launch_ros.parameter_descriptions.ParameterValue(
         launch.substitutions.Command(
-            ['cat ', launch.substitutions.LaunchConfiguration('mode_path')]),
+            ['xacro ', launch.substitutions.LaunchConfiguration('mode_path')]),
         value_type=str)
     # 状态发布节点
     robot_state_publisher_node = launch_ros.actions.Node(
