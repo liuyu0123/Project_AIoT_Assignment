@@ -1,0 +1,1 @@
+ros2 pkg create demo_python_pkg --build-type ament_python --license Apache-2.0
