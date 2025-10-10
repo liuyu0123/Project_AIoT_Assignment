@@ -6,10 +6,10 @@
             <visual>
                 <origin xyz="0 0 0" rpy="0 0 0"/>
                 <geometry>
-                    <cylinder radius="0.10" length="0.01"/>
+                    <cylinder radius="0.01" length="0.10"/>
                 </geometry>
-                <material name="white">
-                    <color rgba="1 1 1 1"/>
+                <material name="green">
+                    <color rgba="0.0 1.0 0.0 0.8"/>
                 </material>
             </visual>
         </link>
@@ -29,8 +29,8 @@
                 <geometry>
                     <cylinder radius="0.02" length="0.02"/>
                 </geometry>
-                <material name="white">
-                    <color rgba="1 1 1 1"/>
+                <material name="green">
+                    <color rgba="0.0 1.0 0.0 0.8"/>
                 </material>
             </visual>
         </link>
