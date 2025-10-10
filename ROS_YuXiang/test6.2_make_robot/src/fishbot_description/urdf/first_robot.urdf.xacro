@@ -6,10 +6,10 @@
             <visual>
                 <origin rpy="0 0 0" xyz="0 0 0"/>
                 <geometry>
-                    <cylinder length="${length}" radius="${radius}"/>
+                    <cylinder radius="${radius}" length="${length}"/>
                 </geometry>
-                <material name="red">
-                    <color rgba="1.0 0.0 0.0 1.0"/>
+                <material name="yellow">
+                    <color rgba="1.0 1.0 0.0 1.0"/>
                 </material>
             </visual>
         </link>
@@ -23,10 +23,10 @@
                 <geometry>
                     <box size="0.02 0.02 0.02"/>
                 </geometry>
+                <material name="blue">
+                    <color rgba="0.0 0.0 1.0 1.0"/>
+                </material>
             </visual>
-            <material name="blue">
-                <color rgba="0.0 0.0 1.0 1.0"/>
-            </material>
         </link>
 
         <joint name="${imu_name}_joint" type="fixed">
