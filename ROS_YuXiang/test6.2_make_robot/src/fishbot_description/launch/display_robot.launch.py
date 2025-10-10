@@ -8,7 +8,8 @@ def generate_launch_description():
     # 获取配置文件路径
     urdf_tutorial_path = get_package_share_directory('fishbot_description')
     # default_model_path = urdf_tutorial_path + '/urdf/first_robot.urdf'
-    default_model_path = os.path.join(urdf_tutorial_path, 'urdf', 'first_robot.urdf.xacro')
+    # default_model_path = os.path.join(urdf_tutorial_path, 'urdf', 'first_robot.urdf.xacro')
+    default_model_path = os.path.join(urdf_tutorial_path, 'urdf','fishbot', 'fishbot.urdf.xacro')
     if not os.path.isfile(default_model_path):
         raise FileNotFoundError(f'URDF/Xacro file not found: {default_model_path}')
     default_rviz_config_path = urdf_tutorial_path + '/config/rviz/display_model.rviz'
