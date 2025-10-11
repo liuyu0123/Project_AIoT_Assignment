@@ -1,5 +1,9 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="fishbot">
+    <!-- Gazebo 插件 -->
+    <xacro:include filename="$(find fishbot_description)/urdf/fishbot/plugins/gazebo_control_plugin.xacro"/>
+    <xacro:gazebo_control_plugin />
+    
     <xacro:include filename="$(find fishbot_description)/urdf/fishbot/base.urdf.xacro"/>
     <!-- 传感器组件 -->
     <xacro:include filename="$(find fishbot_description)/urdf/fishbot/sensor/imu.urdf.xacro"/>
