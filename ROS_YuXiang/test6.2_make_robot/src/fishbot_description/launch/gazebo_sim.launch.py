@@ -58,6 +58,13 @@ def generate_launch_description():
         output='screen'
     )
 
+    # 加载并激活 fishbot_effort_controller 控制器
+    load_fishbot_effort_controller = launch.actions.ExecuteProcess(
+        cmd=['ros2', 'control', 'load_controller', '--set-state', 
+            'active', 'fishbot_effort_controller'],
+        output='screen'
+    )
+
 
     return launch.LaunchDescription([
         action_declare_arg_model_path,
@@ -70,5 +77,11 @@ def generate_launch_description():
                 target_action=spawn_entity_node,
                 on_exit=[load_joint_state_controller],
             )
-        )
+        ),
+        launch.actions.RegisterEventHandler(
+            event_handler=launch.event_handlers.OnProcessExit(
+                target_action=load_joint_state_controller,
+                on_exit=[load_fishbot_effort_controller],
+            )
+        ),
     ])

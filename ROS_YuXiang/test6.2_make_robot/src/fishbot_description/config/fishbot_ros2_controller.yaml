@@ -5,3 +5,15 @@ controller_manager:
 
     fishbot_joint_state_broadcaster:
       type: joint_state_broadcaster/JointStateBroadcaster
+
+fishbot_effort_controller:
+  ros__parameters:
+    joints:
+      - left_wheel_joint
+      - right_wheel_joint
+    command_interface:
+      - effort
+    state_interface:
+      - position
+      - velocity
+      - effort
