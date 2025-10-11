@@ -7,6 +7,9 @@
     <xacro:include filename="$(find fishbot_description)/urdf/fishbot/plugins/gazebo_sensor_plugin.xacro"/>
     <xacro:gazebo_sensor_plugin />
 
+    <xacro:include filename="$(find fishbot_description)/urdf/fishbot/fishbot.ros2_control.xacro"/>
+    <xacro:fishbot_ros2_control />
+
     <xacro:include filename="$(find fishbot_description)/urdf/fishbot/base.urdf.xacro"/>
     <!-- 传感器组件 -->
     <xacro:include filename="$(find fishbot_description)/urdf/fishbot/sensor/imu.urdf.xacro"/>
