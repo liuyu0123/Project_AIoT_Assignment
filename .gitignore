@@ -10,6 +10,7 @@ test
 cmake
 example
 bags
+world
 
 *.out
 *.cfg
