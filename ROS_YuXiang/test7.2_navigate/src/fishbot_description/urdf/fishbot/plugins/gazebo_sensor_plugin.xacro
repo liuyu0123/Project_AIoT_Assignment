@@ -97,6 +97,7 @@
     </gazebo>
 
     <xacro:macro name="gazebo_sensor_plugin"> 
+        <gazebo reference="laser_link"> 
         <sensor name="laserscan" type="ray">
             <plugin name="laserscan" filename="libgazebo_ros_ray_sensor.so">
                 <ros>
@@ -133,5 +134,6 @@
                 </noise>
             </ray>
         </sensor>
+        </gazebo>
     </xacro:macro>
 </robot>
