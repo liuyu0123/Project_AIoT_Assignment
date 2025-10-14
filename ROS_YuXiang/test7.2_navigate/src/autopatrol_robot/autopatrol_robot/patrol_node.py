@@ -5,6 +5,9 @@ from tf2_ros import TransformListener, Buffer
 from tf_transformations import quaternion_from_euler, euler_from_quaternion
 from rclpy.duration import Duration
 from autopatrol_interfaces.srv import SpeachText
+from sensor_msgs.msg import Image
+from cv_bridge import CvBridge
+import cv2
 
 
 class PatrolNode(BasicNavigator):
@@ -18,6 +21,12 @@ class PatrolNode(BasicNavigator):
         self.buffer_ = Buffer()
         self.listener_ = TransformListener(self.buffer_, self)
         self.speach_client_ = self.create_client(SpeachText, 'speach_text')
+        # 图像处理相关定义
+        self.declare_parameter('image_save_path', '')
+        self.image_save_path = self.get_parameter('image_save_path').value
+        self.bridge = CvBridge()
+        self.latest_image = None
+        self.subscription_image = self.create_subscription(Image, 'camera_sensor/image_raw', self.image_callback, 10)
 
 
     def get_pose_by_xyyaw(self, x, y, yaw):
@@ -117,6 +126,16 @@ class PatrolNode(BasicNavigator):
             self.get_logger().warn('exception while calling service')
 
 
+    def image_callback(self, msg):
+        # 获取图像并保存
+        self.latest_image = msg
+
+
+    def record_image(self):
+        if self.latest_image is not None:
+            pose = self.get_current_pose()
+            cv_image = self.bridge.imgmsg_to_cv2(self.latest_image)
+            cv2.imwrite(f'{self.image_save_path}image_{pose.translation.x:3.2f}_{pose.translation.y:3.2f}.png', cv_image)
 
 def main(args=None):
     rclpy.init(args=args)
@@ -133,4 +152,9 @@ def main(args=None):
             target_pose = patrol_node.get_pose_by_xyyaw(x, y, yaw)
             patrol_node.speach_text(text = f'正在导航到目标点 ({x}, {y}, {yaw})')
             patrol_node.nav_to_pose(target_pose)
+
+            # 保存图片
+            patrol_node.speach_text(text = f'已到达目标点 ({x}, {y}, {yaw})，正在保存图片')
+            patrol_node.record_image()
+            patrol_node.speach_text(text = '图像记录完成')
     rclpy.shutdown()
