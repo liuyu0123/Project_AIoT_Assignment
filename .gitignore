@@ -10,7 +10,7 @@ test
 cmake
 example
 bags
-world
+# world
 maps
 
 *.out
@@ -20,6 +20,8 @@ maps
 *-env
 *.pdf
 *.gv
+*.log
+*.png
 
 
 CMakeFiles
