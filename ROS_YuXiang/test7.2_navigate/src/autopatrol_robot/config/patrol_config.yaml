@@ -1,5 +1,5 @@
 patrol_node:
-  ros_parameters:
+  ros__parameters:
     initial_point: [0.0, 0.0, 0.0]
     target_points: [
       0.0, 0.0, 0.0,

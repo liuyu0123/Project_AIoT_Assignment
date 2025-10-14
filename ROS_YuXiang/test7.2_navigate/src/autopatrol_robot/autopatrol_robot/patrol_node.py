@@ -72,7 +72,7 @@ class PatrolNode(BasicNavigator):
             feedback = self.getFeedback()
             if feedback:
                 self.get_logger().info(
-                    f'will arrive after {Duration.from_msg(feedback.estimate_time_remaining).nanoseconds / 1e9} seconds')
+                    f'will arrive after {Duration.from_msg(feedback.estimated_time_remaining).nanoseconds / 1e9} seconds')
         # 最终结果判断
         result = self.getResult()
         if result == TaskResult.SUCCEEDED:
@@ -85,11 +85,11 @@ class PatrolNode(BasicNavigator):
             self.get_logger().error('the result is invalid')
 
 
-    def get_current_pose(self):
+    def get_current_pose_2(self):
         # 通过TF获取当前位置
         while rclpy.ok():
             try:
-                tf = self.buffer.lookup_transform(
+                tf = self.buffer_.lookup_transform(
                     'map', 'base_footprint', rclpy.time.Time(seconds=0),
                     rclpy.time.Duration(seconds=1))
                 transform = tf.transform
@@ -99,13 +99,30 @@ class PatrolNode(BasicNavigator):
                     transform.rotation.z,
                     transform.rotation.w])
                 self.get_logger().info(
-                    f'translate: ({transform.translation}, ',
-                    f'rotation: {transform.rotation}, ', 
+                    f'translate: ({transform.translation}, '
+                    f'rotation: {transform.rotation}, '
                     f'euler: {rotation_euler}.')
                 return transform
             except Exception as e:
                 self.get_logger().warn(f'get current pose failed: {str(e)}')
-                rclpy.sleep(0.1)
+
+
+    def get_current_pose(self, max_retry=5):
+        for i in range(max_retry):
+            try:
+                tf = self.buffer_.lookup_transform(
+                    'map', 'base_footprint', rclpy.time.Time(),
+                    rclpy.time.Duration(seconds=1))
+                self.get_logger().info(
+                    f'translate: {tf.transform.translation}, '
+                    f'rotation: {tf.transform.rotation}, '
+                    f'euler: {euler_from_quaternion([tf.transform.rotation.x, tf.transform.rotation.y, tf.transform.rotation.z, tf.transform.rotation.w])}')
+                return tf.transform
+            except Exception as e:
+                self.get_logger().warn(f'get current pose failed: {e}  retry {i+1}/{max_retry}')
+                rclpy.spin_once(self, timeout_sec=0.1)
+        return None
+
 
 
     def speach_text(self, text):
@@ -131,11 +148,33 @@ class PatrolNode(BasicNavigator):
         self.latest_image = msg
 
 
-    def record_image(self):
+    def record_image_2(self):
         if self.latest_image is not None:
             pose = self.get_current_pose()
             cv_image = self.bridge.imgmsg_to_cv2(self.latest_image)
             cv2.imwrite(f'{self.image_save_path}image_{pose.translation.x:3.2f}_{pose.translation.y:3.2f}.png', cv_image)
+
+
+    def record_image(self):
+        if self.latest_image is None:
+            self.get_logger().warn('no image received yet, skip recording')
+            return
+        pose = self.get_current_pose()
+        if pose is None:
+            self.get_logger().warn('could not get pose, skip recording')
+            return
+
+        cv_image = self.bridge.imgmsg_to_cv2(self.latest_image, desired_encoding='bgr8')
+        filename = f'{self.image_save_path}image_{pose.translation.x:.2f}_{pose.translation.y:.2f}.png'
+        if cv2.imwrite(filename, cv_image):
+            self.get_logger().info(f'image saved: {filename}')
+        else:
+            self.get_logger().error(f'failed to write {filename}')
+
+
+
+
+
 
 def main(args=None):
     rclpy.init(args=args)
