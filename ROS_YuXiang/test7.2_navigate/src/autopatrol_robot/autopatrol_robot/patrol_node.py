@@ -61,8 +61,7 @@ class PatrolNode(BasicNavigator):
             feedback = self.getFeedback()
             if feedback:
                 self.get_logger().info(
-                    f'will arrive after {Duration.from_msg(
-                        feedback.estimate_time_remaining).nanoseconds / 1e9} seconds')
+                    f'will arrive after {Duration.from_msg(feedback.estimate_time_remaining).nanoseconds / 1e9} seconds')
         # 最终结果判断
         result = self.getResult()
         if result == TaskResult.SUCCEEDED:
