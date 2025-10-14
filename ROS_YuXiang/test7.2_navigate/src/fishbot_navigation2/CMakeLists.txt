@@ -15,6 +15,15 @@ install(DIRECTORY launch config maps
   DESTINATION share/${PROJECT_NAME}
 )
 
+find_package(rclcpp REQUIRED)
+find_package(rclcpp_action REQUIRED)
+find_package(nav2_msgs REQUIRED)
+
+add_executable(nav_to_pose_client src/nav_to_pose_client.cpp)
+ament_target_dependencies(nav_to_pose_client rclcpp rclcpp_action nav2_msgs)
+
+
+
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
