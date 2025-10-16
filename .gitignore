@@ -11,7 +11,7 @@ cmake
 example
 bags
 # world
-maps
+# maps
 
 *.out
 *.cfg
