@@ -20,8 +20,8 @@ def main():
     navigator.goToPose(goal_pose)
     while not navigator.isTaskComplete():
         feedback = navigator.getFeedback()
-        navigator.get_logger().info('Moving towards goal pose...',
-                                    f'will be {Duration.from_msg(feedback.estimate_time_remaining).nanoseconds/1e9} seconds after arrive')
+        navigator.get_logger().info('Moving towards goal pose...'
+                                    f'will be {Duration.from_msg(feedback.estimated_time_remaining).nanoseconds/1e9} seconds after arrive')
         if Duration.from_msg(feedback.navigation_time) > Duration(seconds=60.0):
             print('can not arrive, calculate time over')
             navigator.cancelTask()
