@@ -10,8 +10,8 @@ test
 cmake
 example
 bags
-world
-maps
+# world
+# maps
 
 *.out
 *.cfg
