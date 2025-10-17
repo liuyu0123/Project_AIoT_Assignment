@@ -1,0 +1,1 @@
+ros2 pkg create motion_control_system --dependencies pluginlib --license Apache-2.0 --build-type ament_cmake

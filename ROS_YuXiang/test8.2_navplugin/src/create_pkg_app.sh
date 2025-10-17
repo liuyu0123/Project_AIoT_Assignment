@@ -1,0 +1,1 @@
+ros2 pkg create fishbot_application --build-type ament_python --license Apache-2.0

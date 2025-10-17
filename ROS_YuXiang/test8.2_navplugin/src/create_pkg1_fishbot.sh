@@ -1,0 +1,1 @@
+ros2 pkg create fishbot_description --build-type ament_cmake --license Apache-2.0
