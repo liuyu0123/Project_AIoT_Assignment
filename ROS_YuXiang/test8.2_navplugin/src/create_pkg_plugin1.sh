@@ -1,0 +1,1 @@
+ros2 pkg create nav2_custom_planner --build-type ament_cmake --license Apache-2.0 --dependencies nav2_core pluginlib
