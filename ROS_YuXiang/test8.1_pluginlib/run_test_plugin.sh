@@ -1,0 +1,3 @@
+colcon build
+source install/setup.bash
+ros2 run motion_control_system test_plugin motion_control_system/SpinMotionController

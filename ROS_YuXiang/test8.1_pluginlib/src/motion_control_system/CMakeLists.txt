@@ -26,6 +26,21 @@ install(
   DIRECTORY include/
   DESTINATION include/
 )
+
+# 添加测试程序
+add_executable(test_plugin src/test_plugin.cpp)
+ament_target_dependencies(
+  test_plugin
+  pluginlib
+)
+install(
+  TARGETS
+  test_plugin
+  DESTINATION
+  lib/${PROJECT_NAME}
+)
+
+
 # 导出插件描述文件
 pluginlib_export_plugin_description_file(
   motion_control_system
