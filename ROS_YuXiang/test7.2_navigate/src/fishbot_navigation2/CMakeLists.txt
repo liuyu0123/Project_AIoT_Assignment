@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.8)
-project(fishbot_description)
+project(fishbot_navigation2)
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
@@ -11,10 +11,17 @@ find_package(ament_cmake REQUIRED)
 # further dependencies manually.
 # find_package(<dependency> REQUIRED)
 
-
-install(DIRECTORY launch urdf config world
+install(DIRECTORY launch config maps
   DESTINATION share/${PROJECT_NAME}
 )
+
+find_package(rclcpp REQUIRED)
+find_package(rclcpp_action REQUIRED)
+find_package(nav2_msgs REQUIRED)
+
+add_executable(nav_to_pose_client src/nav_to_pose_client.cpp)
+ament_target_dependencies(nav_to_pose_client rclcpp rclcpp_action nav2_msgs)
+
 
 
 
