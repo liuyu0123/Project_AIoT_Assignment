@@ -1,0 +1,13 @@
+--extra-index-url https://git.spacemit.com/api/v4/projects/33/packages/pypi/simple
+numpy==1.26.4
+soundfile==0.13.1
+cn2an==0.5.23
+pypinyin==0.53.0
+spacemit-ort==1.2.2
+jieba==0.42.1
+setuptools==80.9.0
+grpcio==1.71.0
+protobuf==5.29.5
+grpcio-tools==1.71.0
+g2p-en==2.1.0
+transformers==4.48.2
