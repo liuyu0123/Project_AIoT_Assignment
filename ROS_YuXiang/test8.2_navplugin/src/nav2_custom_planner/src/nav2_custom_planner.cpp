@@ -43,8 +43,68 @@ namespace nav2_custom_planner
         const geometry_msgs::msg::PoseStamped &start,
         const geometry_msgs::msg::PoseStamped &goal)
     {
+        // 1. 声明并初始化 global_path
         nav_msgs::msg::Path global_path;
+        global_path.poses.clear();
+        global_path.header.stamp = node_->now();
+        global_path.header.frame_id = global_frame_;
+        // 2. 检查目标和起始状态是否在全局坐标系中
+        if (start.header.frame_id != global_frame_)
+        {
+            RCLCPP_ERROR(node_->get_logger(), "Start pose frame %s does not match global frame %s",
+                         start.header.frame_id.c_str(), global_frame_.c_str());
+            return global_path;
+        }
+        if (goal.header.frame_id != global_frame_)
+        {
+            RCLCPP_ERROR(node_->get_logger(), "Goal pose frame %s does not match global frame %s",
+                         goal.header.frame_id.c_str(), global_frame_.c_str());
+            return global_path;
+        }
+        // 3. 计算当前插值分辨率 interpolation_resolution_ 下的循环次数和步进值
+        int total_number_of_loop = std::hypot(goal.pose.position.x - start.pose.position.x,
+                                              goal.pose.position.y - start.pose.position.y) /
+                                   interpolation_resolution_;
+        double x_increment = (goal.pose.position.x - start.pose.position.x) / total_number_of_loop;
+        double y_increment = (goal.pose.position.y - start.pose.position.y) / total_number_of_loop;
+
+        // 4. 生成路径
         // 进行规划
+        for (int i = 0; i < total_number_of_loop; i++)
+        {
+            // 新生成一个点
+            geometry_msgs::msg::PoseStamped pose;
+            pose.header.frame_id = global_frame_;
+            pose.header.stamp = node_->now();
+            pose.pose.position.x = start.pose.position.x + i * x_increment;
+            pose.pose.position.y = start.pose.position.y + i * y_increment;
+            pose.pose.position.z = 0.0;
+            // 将点添加到路径中
+            global_path.poses.push_back(pose);
+        }
+
+        // 5. 使用 costmap 检查路径中的点是否可通行，是否经过障碍物
+        for (geometry_msgs::msg::PoseStamped &pose : global_path.poses)
+        {
+            unsigned int mx, my;
+            if (!costmap_->worldToMap(pose.pose.position.x, pose.pose.position.y, mx, my))
+            {
+                // 获取对应栅格的代价值
+                unsigned char cost = costmap_->getCost(mx, my);
+                // 如果存在致命障碍物抛出异常
+                if (cost == nav2_costmap_2d::LETHAL_OBSTACLE)
+                {
+                    RCLCPP_WARN(node_->get_logger(), "Could not transform point to map frame at %f,%f", pose.pose.position.x, pose.pose.position.y);
+                    throw nav2_core::PlannerException("Invalid start or goal pose at goal: " + std::to_string(goal.pose.position.x) + ',' + std::to_string(goal.pose.position.y));
+                }
+            }
+        }
+
+        // 6. 收尾
+        geometry_msgs::msg::PoseStamped goal_pose = goal;
+        goal_pose.header.stamp = node_->now();
+        goal_pose.header.frame_id = global_frame_;
+        global_path.poses.push_back(goal_pose);
         return global_path;
     }
 
