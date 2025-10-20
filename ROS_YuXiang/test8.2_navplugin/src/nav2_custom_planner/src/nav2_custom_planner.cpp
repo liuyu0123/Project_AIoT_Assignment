@@ -87,7 +87,7 @@ namespace nav2_custom_planner
         for (geometry_msgs::msg::PoseStamped &pose : global_path.poses)
         {
             unsigned int mx, my;
-            if (!costmap_->worldToMap(pose.pose.position.x, pose.pose.position.y, mx, my))
+            if (costmap_->worldToMap(pose.pose.position.x, pose.pose.position.y, mx, my))
             {
                 // 获取对应栅格的代价值
                 unsigned char cost = costmap_->getCost(mx, my);
