@@ -30,8 +30,8 @@ install(TARGETS ${library_name}
   RUNTIME DESTINATION bin/${PROJECT_NAME}
 )
 # 安装头文件到指定目录
-install(DIRECTORY include/${PROJECT_NAME}/
-  DESTINATION include/${PROJECT_NAME}
+install(DIRECTORY include/
+  DESTINATION include/
 )
 # 导出插件描述文件
 pluginlib_export_plugin_description_file(
