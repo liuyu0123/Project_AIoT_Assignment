@@ -60,8 +60,38 @@ docker run --rm --gpus all nvidia/cuda:12.9.1-base-ubuntu24.04 nvidia-smi
 
 
 ########################### step7. 拉取 VRX 开发环境 ############################
-rocker --pull --devices /dev/input/js0 --x11 --nvidia --user --home \
-       ghcr.io/osrf/vrx-devel:latest /bin/bash
+#rocker --pull --devices /dev/input/js0 --x11 --nvidia --user --home \
+#       ghcr.io/osrf/vrx-devel:latest /bin/bash
+# 上面那条指令进入容器后找不到显卡，用下面这个：
+rocker --pull --devices /dev/dri --x11 --nvidia --user --home ghcr.io/osrf/vrx-devel:latest /bin/bash
 # 不确定 Step 3/6 : FROM ghcr.io/osrf/vrx-devel:latest 是否卡住，开新终端：
 #docker pull ghcr.io/osrf/vrx-devel:latest
 # docker自带保护，不用担心冲突。
+
+# 进入容器后，验证显卡驱动
+sudo apt update && sudo apt install -y mesa-utils
+nvidia-smi
+echo $DISPLAY
+glxinfo | grep -E "(OpenGL renderer|NVIDIA)"
+glxinfo | grep "OpenGL renderer"
+
+
+########################### step8. 容器仿真环境配置 ############################
+# 1. 创建一个 colcon 工作区并克隆 vrx 仓库
+mkdir -p ~/vrx_ws/src
+cd ~/vrx_ws/src
+git clone https://github.com/osrf/vrx.git
+# 2. 获取您的 ROS 2 安装环境。
+source /opt/ros/jazzy/setup.bash
+# 3. 构建工作区
+cd ~/vrx_ws
+colcon build --merge-install
+#  现在你已经构建了仿真环境，需要在使用它之前运行设置脚本。从工作空间的根目录开始，执行以下命令
+. install/setup.bash
+
+
+########################### step9. 容器内启动仿真 ############################
+ros2 launch vrx_gz competition.launch.py world:=sydney_regatta
+# 执行后应出现图形界面
+
+
