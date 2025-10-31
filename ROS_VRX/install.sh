@@ -64,6 +64,17 @@ docker run --rm --gpus all nvidia/cuda:12.9.1-base-ubuntu24.04 nvidia-smi
 #       ghcr.io/osrf/vrx-devel:latest /bin/bash
 # 上面那条指令进入容器后找不到显卡，用下面这个：
 rocker --pull --devices /dev/dri --x11 --nvidia --user --home ghcr.io/osrf/vrx-devel:latest /bin/bash
+rocker --no-rm --pull --devices /dev/dri --x11 --nvidia --user --home ghcr.io/osrf/vrx-devel:latest /bin/bash
+# --no-rm： 保留容器，方便下次进入
+# --pull： 每次都检查远程镜像更新并拉取最新的
+# --devices /dev/dri： 允许访问显卡设备
+# --x11： 允许图形界面显示
+# --nvidia： 允许访问 NVIDIA 显卡
+# --user： 以当前用户身份运行容器，避免权限问题
+# --home： 挂载主机的 home 目录到容器，保存数据
+# ghcr.io/osrf/vrx-devel:latest： VRX 开发环境镜像
+# /bin/bash： 进入容器后启动 bash 终端
+
 # 不确定 Step 3/6 : FROM ghcr.io/osrf/vrx-devel:latest 是否卡住，开新终端：
 #docker pull ghcr.io/osrf/vrx-devel:latest
 # docker自带保护，不用担心冲突。
