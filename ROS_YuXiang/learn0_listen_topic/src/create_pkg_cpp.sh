@@ -1,0 +1,1 @@
+ros2 pkg create --build-type ament_cmake minimal_topic --dependencies rclcpp std_msgs
