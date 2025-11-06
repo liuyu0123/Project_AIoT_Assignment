@@ -25,6 +25,7 @@ setup(
     entry_points={
         'console_scripts': [
             'talker = add_test.talker:main',
+            'listener = add_test.listener:main',
         ],
     },
 )
