@@ -18,6 +18,7 @@ find_package(rosidl_default_generators REQUIRED)
 # 正确写法
 rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/NumberAdd.msg"
+  "srv/NumberAddResult.srv"
 )
 
 
