@@ -1,6 +1,7 @@
 import rclpy
 from rclpy.node import Node
 from interface_test.srv import NumberAddResult
+import sys
 
 class Listener(Node):
     def __init__(self):
@@ -36,6 +37,7 @@ class Listener(Node):
 def main(args=None):
     rclpy.init(args=args)
     listener = Listener()
-    result = listener.send_request(1, 2)  # 调用服务，注意这里不是用的spin
+    # result = listener.send_request(1, 2)  # 调用服务，注意这里不是用的spin
+    result = listener.send_request(sys.argv[1], sys.argv[2])
     listener.get_logger().info(f'结果(in main fun): {result}')
     rclpy.shutdown()
