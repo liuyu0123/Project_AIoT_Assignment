@@ -13,6 +13,17 @@ def generate_launch_description():
         default_value='1.0',
         description='add factor: b'
     )
+    action_declare_listener_add_a = launch.actions.DeclareLaunchArgument(
+        'listener.a',
+        default_value='5.0',
+        description='add : a'
+    )
+    action_declare_listener_add_b = launch.actions.DeclareLaunchArgument(
+        'listener.b',
+        default_value='5.0',
+        description='add : b'
+    )
+
 
     action_node_talker = launch_ros.actions.Node(
         package='add_test_srv',
@@ -31,11 +42,17 @@ def generate_launch_description():
         name='add_listener_node_srv',
         output='screen',
         parameters=[],
+        arguments=[
+            launch.substitutions.LaunchConfiguration('listener.a'),
+            launch.substitutions.LaunchConfiguration('listener.b'),
+        ],
     )
 
     return launch.LaunchDescription([
         action_declare_arg_add_a,
         action_declare_arg_add_b,
+        action_declare_listener_add_a,
+        action_declare_listener_add_b,
         action_node_talker,
         action_node_listener,
     ])

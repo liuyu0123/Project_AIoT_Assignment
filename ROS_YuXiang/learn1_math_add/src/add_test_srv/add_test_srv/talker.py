@@ -9,8 +9,8 @@ class Talker(Node):
         self.declare_parameter('weight_b', 1.0)
         self.get_logger().info(f'weight_a参数初始化为: {self.get_parameter("weight_a").value}')
         self.get_logger().info(f'weight_b参数初始化为: {self.get_parameter("weight_b").value}')
-        # self.get_parameter('weight_a').value
-        # self.get_parameter('weight_b').value
+        self.get_parameter('weight_a').value
+        self.get_parameter('weight_b').value
         self.service = self.create_service(NumberAddResult, 'add_two_number_result', self.add_two_number_result)
         self.get_logger().info('add_server is ready')
     def add_two_number_result(self, request, response):
