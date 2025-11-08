@@ -1,7 +1,6 @@
 import launch
 import launch_ros
 
-
 def generate_launch_description():
     action_declare_arg_add_a = launch.actions.DeclareLaunchArgument(
         'talker.weight_a',
@@ -48,11 +47,21 @@ def generate_launch_description():
         ],
     )
 
+    #动作4-组织动作成组，把多个动作放到一组
+    action_group = launch.actions.GroupAction([
+        #动作5-定时器
+        launch.actions.TimerAction(period=1.0, actions=[action_node_talker]),
+        launch.actions.TimerAction(period=2.0, actions=[action_node_listener]),
+    ])
+
+
     return launch.LaunchDescription([
         action_declare_arg_add_a,
         action_declare_arg_add_b,
         action_declare_listener_add_a,
         action_declare_listener_add_b,
-        action_node_talker,
-        action_node_listener,
+        # action_node_talker,
+        # action_node_listener,
+        # 控制启动顺序，方法1：组合并结合 TimerAction
+        action_group,
     ])
