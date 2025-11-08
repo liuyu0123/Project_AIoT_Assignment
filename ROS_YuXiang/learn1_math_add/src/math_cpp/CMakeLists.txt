@@ -32,4 +32,7 @@ ament_target_dependencies(talker rclcpp std_msgs) # 手动添加依赖
 install(TARGETS talker
   DESTINATION lib/${PROJECT_NAME})
 
+install(DIRECTORY launch
+  DESTINATION share/${PROJECT_NAME})
+
 ament_package()
