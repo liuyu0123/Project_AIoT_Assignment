@@ -11,6 +11,7 @@ setup(
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
         ('share/' + package_name+"/launch", ['launch/test.launch.py']),
+        ('share/' + package_name+"/launch", ['launch/test2.launch.py']),
     ],
     install_requires=['setuptools'],
     zip_safe=True,
