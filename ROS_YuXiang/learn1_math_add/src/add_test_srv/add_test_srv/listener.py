@@ -37,7 +37,12 @@ class Listener(Node):
 def main(args=None):
     rclpy.init(args=args)
     listener = Listener()
-    # result = listener.send_request(1, 2)  # 调用服务，注意这里不是用的spin
-    result = listener.send_request(sys.argv[1], sys.argv[2])
+    a_default = 1.0
+    b_default = 2.0
+    if argv_len := len(sys.argv) != 3:
+        listener.get_logger().info(f'使用默认参数: {a_default} + {b_default}')
+        result = listener.send_request(a_default, b_default)  # 调用服务，注意这里不是用的spin
+    else:
+        result = listener.send_request(sys.argv[1], sys.argv[2])
     listener.get_logger().info(f'结果(in main fun): {result}')
     rclpy.shutdown()
