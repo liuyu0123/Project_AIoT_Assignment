@@ -4,12 +4,12 @@ import launch_ros
 
 def generate_launch_description():
     action_declare_arg_add_a = launch.actions.DeclareLaunchArgument(
-        'weight_factor_a',
+        'talker.weight_a',
         default_value='1.0',
         description='add factor: a'
     )
     action_declare_arg_add_b = launch.actions.DeclareLaunchArgument(
-        'weight_factor_b',
+        'talker.weight_b',
         default_value='1.0',
         description='add factor: b'
     )
@@ -20,8 +20,8 @@ def generate_launch_description():
         name='add_talker_node_srv',
         output='screen',
         parameters=[{
-            'weight_a': launch.substitutions.LaunchConfiguration('weight_factor_a', default='1.0'),
-            'weight_b': launch.substitutions.LaunchConfiguration('weight_factor_b', default='1.0'),
+            'weight_a': launch.substitutions.LaunchConfiguration('talker.weight_a'),
+            'weight_b': launch.substitutions.LaunchConfiguration('talker.weight_b'),
         }],
     )
 
