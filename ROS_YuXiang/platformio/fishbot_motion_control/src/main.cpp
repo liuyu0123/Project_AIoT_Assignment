@@ -71,4 +71,5 @@ void loop()
     // motorSpeedControl();
     motor.updateMotorSpeed(0, pid_controller[0].update(kinematics.get_motor_speed(0)));
     motor.updateMotorSpeed(1, pid_controller[1].update(kinematics.get_motor_speed(1)));
+    Serial.printf("x=%f, y=%f, angle=%f\n", kinematics.get_odom().x, kinematics.get_odom().y, kinematics.get_odom().angle);
 }

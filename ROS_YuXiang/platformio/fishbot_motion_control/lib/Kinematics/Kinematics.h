@@ -10,6 +10,16 @@ typedef struct
     int64_t last_encoder_tick;
 } motor_param_t;
 
+typedef struct
+{
+    float x;
+    float y;
+    float angle;
+    float linear_speed;
+    float angle_speed;
+} odom_t;
+
+
 class Kinematics
 {
 public:
@@ -29,10 +39,17 @@ public:
 
     int16_t get_motor_speed(uint8_t id);
 
+    void update_odom(uint16_t dt);
+
+    odom_t &get_odom();
+
+    static void TransAngleInPI(float angle, float &out_angle);
+
 private:
     motor_param_t motor_param_[2];
     uint64_t last_update_time_;
     float wheel_distance_;
+    odom_t odom_;
 };
 
 #endif
