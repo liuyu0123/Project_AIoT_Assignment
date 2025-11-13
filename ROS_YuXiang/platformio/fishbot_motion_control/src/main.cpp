@@ -1,23 +1,41 @@
 #include <Arduino.h>
 #include <Esp32McpwmMotor.h>
+#include <Esp32PcntEncoder.h>
 
-
+Esp32PcntEncoder encoders[2];
 Esp32McpwmMotor motor; // 创建一个名为motor的对象，用于控制电机
+
+int64_t last_ticks[2]; //记录上次读取的计数器数值
+int32_t delta_ticks[2]; //记录两次读取计数器之间的差值
+int64_t last_update_time; //记录上次更新速度的时间
+float current_speeds[2]; //记录电机的当前速度
 
 void setup()
 {
     Serial.begin(115200); // 初始化串口通信，波特率为115200
+    encoders[0].init(0, 32, 33); //初始化编码器0
+    encoders[1].init(1, 26, 25); //初始化编码器1
     motor.attachMotor(0, 22, 23); // 将电机0连接到引脚22和引脚23
     motor.attachMotor(1, 12, 13); // 将电机1连接到引脚12和引脚13
+    motor.updateMotorSpeed(0, 70);
+    motor.updateMotorSpeed(1, 70);
 }
+
 
 void loop()
 {
-    motor.updateMotorSpeed(0, 70); // 设置电机0的速度为负70
-    motor.updateMotorSpeed(1, 70); // 设置电机1的速度为正70
-    delay(2000); // 延迟两秒
+    delay(10);
+    uint64_t dt = millis() - last_update_time;
 
-    motor.updateMotorSpeed(0, -70); // 设置电机0的速度为正70
-    motor.updateMotorSpeed(1, -70); // 设置电机1的速度为负70
-    delay(2000); // 延迟两秒
+    delta_ticks[0] = encoders[0].getTicks() - last_ticks[0];
+    delta_ticks[1] = encoders[1].getTicks() - last_ticks[1];
+
+    current_speeds[0] = float(delta_ticks[0] * 0.1051566) / dt;
+    current_speeds[1] = float(delta_ticks[1] * 0.1051566) / dt;
+
+    last_update_time = millis();
+    last_ticks[0] = encoders[0].getTicks();
+    last_ticks[1] = encoders[1].getTicks();
+
+    Serial.printf("speed=%fm/s, speed=%fm/s\n", current_speeds[0], current_speeds[1]);
 }
