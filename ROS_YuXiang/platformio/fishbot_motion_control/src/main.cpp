@@ -3,6 +3,11 @@
 #include <Esp32PcntEncoder.h>
 #include <PidController.h>
 #include <Kinematics.h>
+#include <WiFi.h>
+#include <micro_ros_platformio.h>
+#include <rcl/rcl.h>
+#include <rclc/rclc.h>
+#include <rclc/executor.h>
 
 Esp32PcntEncoder encoders[2];
 Esp32McpwmMotor motor; // 创建一个名为motor的对象，用于控制电机
@@ -18,6 +23,11 @@ float target_linear_speed = 50.0f;
 float target_angle_speed = 0.1f;
 float out_left_speed;
 float out_right_speed;
+
+rcl_allocator_t allocator; //内存分配器
+rclc_support_t support;  //用于存储时钟、订阅者、发布者、服务、客户端、定时器等信息
+rclc_executor_t executor; // 执行器
+rcl_node_t node;
 
 void motorSpeedControl()
 {
@@ -38,6 +48,24 @@ void motorSpeedControl()
 
     Serial.printf("speed=%fm/s, speed=%fm/s\n", current_speeds[0], current_speeds[1]);
 }
+
+
+void micro_ros_task(void *parameter)
+{ 
+    IPAddress agent_ip;
+    agent_ip.fromString("10.16.56.57");
+    char WIFI_NAME[] = "mywifi";
+    char WIFI_PASSWORD[] = "12345678";
+    set_microros_wifi_transports(WIFI_NAME, WIFI_PASSWORD, agent_ip, 8888);
+    delay(2000);
+    allocator = rcl_get_default_allocator();
+    rclc_support_init(&support, 0, NULL, &allocator);
+    rclc_node_init_default(&node, "fishbot_motion_control", "", &support);
+    unsigned int num_handles = 0;
+    rclc_executor_init(&executor, &support.context, num_handles, &allocator);
+    rclc_executor_spin(&executor);
+}
+
 
 void setup()
 {
@@ -62,6 +90,8 @@ void setup()
 
     pid_controller[0].update_target(out_left_speed);
     pid_controller[1].update_target(out_right_speed);
+
+    xTaskCreate(micro_ros_task, "micro_ros_task", 10240, NULL, 1, NULL);
 }
 
 void loop()
