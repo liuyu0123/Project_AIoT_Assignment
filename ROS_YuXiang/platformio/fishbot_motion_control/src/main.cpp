@@ -2,15 +2,22 @@
 #include <Esp32McpwmMotor.h>
 #include <Esp32PcntEncoder.h>
 #include <PidController.h>
+#include <Kinematics.h>
 
 Esp32PcntEncoder encoders[2];
 Esp32McpwmMotor motor; // 创建一个名为motor的对象，用于控制电机
 PidController pid_controller[2];
+Kinematics kinematics;
 
 int64_t last_ticks[2];    // 记录上次读取的计数器数值
 int32_t delta_ticks[2];   // 记录两次读取计数器之间的差值
 int64_t last_update_time; // 记录上次更新速度的时间
 float current_speeds[2];  // 记录电机的当前速度
+
+float target_linear_speed = 50.0f;
+float target_angle_speed = 0.1f;
+float out_left_speed;
+float out_right_speed;
 
 void motorSpeedControl()
 {
@@ -43,16 +50,25 @@ void setup()
     // motor.updateMotorSpeed(1, 70);
     pid_controller[0].update_pid(0.625, 0.125, 0.0);
     pid_controller[1].update_pid(0.625, 0.125, 0.0);
-    
+
     pid_controller[0].out_limit(-100, 100);
     pid_controller[1].out_limit(-100, 100);
 
-    pid_controller[0].update_target(100);
-    pid_controller[1].update_target(100);
+    kinematics.set_wheel_distance(175);
+    kinematics.set_motor_param(0, 0.1051566);
+    kinematics.set_motor_param(1, 0.1051566);
+
+    kinematics.kinematics_inverse(target_linear_speed, target_angle_speed, out_left_speed, out_right_speed);
+
+    pid_controller[0].update_target(out_left_speed);
+    pid_controller[1].update_target(out_right_speed);
 }
 
 void loop()
 {
     delay(10);
-    motorSpeedControl();
+    kinematics.update_motor_speed(millis(), encoders[0].getTicks(), encoders[1].getTicks());
+    // motorSpeedControl();
+    motor.updateMotorSpeed(0, pid_controller[0].update(kinematics.get_motor_speed(0)));
+    motor.updateMotorSpeed(1, pid_controller[1].update(kinematics.get_motor_speed(1)));
 }
