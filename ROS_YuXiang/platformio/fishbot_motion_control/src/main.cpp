@@ -9,6 +9,8 @@
 #include <rclc/rclc.h>
 #include <rclc/executor.h>
 #include <geometry_msgs/msg/twist.h>
+#include <nav_msgs/msg/odometry.h>
+#include <micro_ros_utilities/string_utilities.h>
 
 Esp32PcntEncoder encoders[2];
 Esp32McpwmMotor motor; // 创建一个名为motor的对象，用于控制电机
@@ -32,6 +34,10 @@ rcl_node_t node;
 
 rcl_subscription_t subscriber;
 geometry_msgs__msg__Twist sub_msg;
+
+rcl_publisher_t odom_publisher;
+nav_msgs__msg__Odometry odom_msg;
+rcl_timer_t timer;
 
 
 void motorSpeedControl()
@@ -64,6 +70,25 @@ void twist_callback(const void *msg_in)
 }
 
 
+void callback_publisher(rcl_timer_t *timer, int64_t last_call_time){
+    odom_t odom = kinematics.get_odom();
+    int64_t stamp = rmw_uros_epoch_millis();
+    odom_msg.header.stamp.sec = static_cast<uint32_t>(stamp / 1000);
+    odom_msg.header.stamp.nanosec = static_cast<uint32_t>(stamp % 1000 * 1e6);
+    odom_msg.pose.pose.position.x = odom.x;
+    odom_msg.pose.pose.position.y = odom.y;
+    odom_msg.pose.pose.orientation.w = cos(odom.angle * 0.5);
+    odom_msg.pose.pose.orientation.x = 0;
+    odom_msg.pose.pose.orientation.y = 0;
+    odom_msg.pose.pose.orientation.z = sin(odom.angle * 0.5);
+    odom_msg.twist.twist.linear.x = odom.linear_speed;
+    odom_msg.twist.twist.angular.z = odom.angle_speed;
+    if (rcl_publish(&odom_publisher, &odom_msg, NULL) != RCL_RET_OK){
+        Serial.printf("Failed to publish odom message!\n");
+    }
+}
+
+
 void micro_ros_task(void *parameter)
 { 
     IPAddress agent_ip;
@@ -75,13 +100,26 @@ void micro_ros_task(void *parameter)
     allocator = rcl_get_default_allocator();
     rclc_support_init(&support, 0, NULL, &allocator);
     rclc_node_init_default(&node, "fishbot_motion_control", "", &support);
-    unsigned int num_handles = 0+1;
+    unsigned int num_handles = 0+2;
     rclc_executor_init(&executor, &support.context, num_handles, &allocator);
 
     rclc_subscription_init_best_effort(&subscriber, &node, 
         ROSIDL_GET_MSG_TYPE_SUPPORT(geometry_msgs, msg, Twist), "/cmd_vel");
     rclc_executor_add_subscription(&executor, &subscriber, &sub_msg, &twist_callback, ON_NEW_DATA);
     
+    odom_msg.header.frame_id = micro_ros_string_utilities_set(odom_msg.header.frame_id, "odom");
+    odom_msg.child_frame_id = micro_ros_string_utilities_set(odom_msg.child_frame_id, "base_footprint");
+    rclc_publisher_init_best_effort(&odom_publisher, &node, 
+        ROSIDL_GET_MSG_TYPE_SUPPORT(nav_msgs, msg, Odometry), "/odom");
+    
+    while (!rmw_uros_epoch_synchronized()) {
+        rmw_uros_sync_session(1000);
+        delay(10);
+    }
+
+    rclc_timer_init_default(&timer, &support, RCL_MS_TO_NS(50), callback_publisher);
+    rclc_executor_add_timer(&executor, &timer);
+
     rclc_executor_spin(&executor);
 }
 
