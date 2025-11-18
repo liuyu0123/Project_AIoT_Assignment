@@ -8,6 +8,7 @@
 #include <rcl/rcl.h>
 #include <rclc/rclc.h>
 #include <rclc/executor.h>
+#include <geometry_msgs/msg/twist.h>
 
 Esp32PcntEncoder encoders[2];
 Esp32McpwmMotor motor; // 创建一个名为motor的对象，用于控制电机
@@ -29,6 +30,10 @@ rclc_support_t support;  //用于存储时钟、订阅者、发布者、服务�
 rclc_executor_t executor; // 执行器
 rcl_node_t node;
 
+rcl_subscription_t subscriber;
+geometry_msgs__msg__Twist sub_msg;
+
+
 void motorSpeedControl()
 {
     uint64_t dt = millis() - last_update_time;
@@ -49,6 +54,15 @@ void motorSpeedControl()
     Serial.printf("speed=%fm/s, speed=%fm/s\n", current_speeds[0], current_speeds[1]);
 }
 
+void twist_callback(const void *msg_in)
+{
+    const geometry_msgs__msg__Twist *twist_msg = (const geometry_msgs__msg__Twist *)msg_in;
+    kinematics.kinematics_inverse(twist_msg->linear.x * 1e3, twist_msg->angular.z,
+                                  out_left_speed, out_right_speed);
+    pid_controller[0].update_target(out_left_speed);
+    pid_controller[1].update_target(out_right_speed);
+}
+
 
 void micro_ros_task(void *parameter)
 { 
@@ -61,8 +75,13 @@ void micro_ros_task(void *parameter)
     allocator = rcl_get_default_allocator();
     rclc_support_init(&support, 0, NULL, &allocator);
     rclc_node_init_default(&node, "fishbot_motion_control", "", &support);
-    unsigned int num_handles = 0;
+    unsigned int num_handles = 0+1;
     rclc_executor_init(&executor, &support.context, num_handles, &allocator);
+
+    rclc_subscription_init_best_effort(&subscriber, &node, 
+        ROSIDL_GET_MSG_TYPE_SUPPORT(geometry_msgs, msg, Twist), "/cmd_vel");
+    rclc_executor_add_subscription(&executor, &subscriber, &sub_msg, &twist_callback, ON_NEW_DATA);
+    
     rclc_executor_spin(&executor);
 }
 
