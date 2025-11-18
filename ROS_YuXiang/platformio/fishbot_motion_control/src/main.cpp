@@ -53,9 +53,9 @@ void motorSpeedControl()
 void micro_ros_task(void *parameter)
 { 
     IPAddress agent_ip;
-    agent_ip.fromString("10.16.56.57");
-    char WIFI_NAME[] = "mywifi";
-    char WIFI_PASSWORD[] = "12345678";
+    agent_ip.fromString("192.168.0.102");
+    char WIFI_NAME[] = "TP-LINK_3371";
+    char WIFI_PASSWORD[] = "qwe12345";
     set_microros_wifi_transports(WIFI_NAME, WIFI_PASSWORD, agent_ip, 8888);
     delay(2000);
     allocator = rcl_get_default_allocator();
