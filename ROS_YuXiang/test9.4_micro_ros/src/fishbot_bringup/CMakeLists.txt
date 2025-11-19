@@ -10,6 +10,20 @@ find_package(ament_cmake REQUIRED)
 # uncomment the following section in order to fill in
 # further dependencies manually.
 # find_package(<dependency> REQUIRED)
+find_package(rclcpp REQUIRED)
+find_package(tf2 REQUIRED)
+find_package(tf2_ros REQUIRED)
+find_package(geometry_msgs REQUIRED)
+find_package(nav_msgs REQUIRED)
+
+add_executable(odom2tf src/odom2tf.cpp)
+ament_target_dependencies(odom2tf 
+  rclcpp tf2 tf2_ros geometry_msgs nav_msgs
+)
+
+install(TARGETS odom2tf
+  DESTINATION lib/${PROJECT_NAME}
+)
 
 install(DIRECTORY launch
   DESTINATION share/${PROJECT_NAME}
