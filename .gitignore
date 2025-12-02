@@ -12,6 +12,7 @@ example
 bags
 # world
 # maps
+__pycache__
 
 *.out
 *.cfg
@@ -22,6 +23,9 @@ bags
 *.gv
 *.log
 *.png
+*.mp3
+*.mp4
+.keep
 
 
 CMakeFiles
