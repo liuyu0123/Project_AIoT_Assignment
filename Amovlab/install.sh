@@ -1,26 +1,23 @@
 set -e
-python_edition=python3 #python3.9
-python_venv_name=dronekit-env
+board=RaspberryPi3B
 
-if [ $python_edition -eq "python3.9" ];then
-python3.9 -m venv dronekit-env-py39   # 用 3.9 创建新环境
-source dronekit-env-py39/bin/activate
-# python3.9 -m pip install dronekit
-# python3.9 -m pip install pymavlink
-# python3.9 -m pip install future
-# python3.9 -m pip install --upgrade pymavlink
-# python3.9 -m pip install numpy opencv-python
-# python3.9 -m pip list
+sudo apt install python3-pip python3-dev python3-venv -y
 
+# python_edition=python3 #python3.9
+# python_venv_name=dronekit-env
+
+# python3 -m pip venv dronekit-env
+# source dronekit-env/bin/activate
+
+if [ $board -eq "RaspberryPi5" ]; then
+
+env_name=dronekit-env-py39
+if [ -d "$env_name" ]; then
+echo "$env_name 开发环境已存在"
 else
-$python_edition -m venv $python_venv_name
-source $python_venv_name/bin/activate
-# $python_edition -m pip install dronekit
-# $python_edition -m pip install pymavlink
-# $python_edition -m pip install future
-# $python_edition -m pip install --upgrade pymavlink
-# $python_edition -m pip install numpy opencv-python
-# $python_edition -m pip list
+echo "创建 $env_name 开发环境..."
+python3.9 -m venv $env_name   # 用 3.9 创建新环境
+source $env_name/bin/activate
 fi
 
 pip install dronekit
@@ -29,3 +26,28 @@ pip install future
 pip install --upgrade pymavlink
 pip install numpy opencv-python
 pip install pyserial
+
+elif [ $board -eq "RaspberryPi3B" ]; then
+#树莓派3B，ubuntu20.04，系统python版本3.8
+env_name=dronekit-env
+if [ -d "$env_name" ]; then
+echo "$env_name 开发环境已存在"
+else
+echo "创建 $env_name 开发环境..."
+python3.9 -m venv $env_name   # 用 3.9 创建新环境
+source $env_name/bin/activate
+fi
+
+pip install wheel -i https://pypi.tuna.tsinghua.edu.cn/simple
+pip install lxml --only-binary=lxml -i https://pypi.tuna.tsinghua.edu.cn/simple
+pip install dronekit -i https://pypi.tuna.tsinghua.edu.cn/simple
+# pip install pymavlink -i https://pypi.tuna.tsinghua.edu.cn/simple
+pip install pymavlink==2.4.48 -i https://pypi.tuna.tsinghua.edu.cn/simple
+pip install future -i https://pypi.tuna.tsinghua.edu.cn/simple
+pip install --upgrade pymavlink
+pip install numpy opencv-python -i https://pypi.tuna.tsinghua.edu.cn/simple
+pip install pyserial -i https://pypi.tuna.tsinghua.edu.cn/simple
+
+else
+echo "board not support"
+fi
