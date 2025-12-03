@@ -1,8 +1,15 @@
 from pymavlink import mavutil
 import math, time, cv2
 
+try:
+    port = glob.glob('/dev/serial/by-id/usb-ArduPilot_fmuv3_*-if00')[0]  # 取第一个匹配
+    print("检测到串口设备:",port)
+except IndexError:
+    raise SystemExit('找不到飞控串口，确认是否已插上')
+
 # con = mavutil.mavlink_connection('/dev/serial0', baud=115200)
-con = mavutil.mavlink_connection('/dev/ttyACM1', baud=115200)
+# con = mavutil.mavlink_connection('/dev/ttyACM1', baud=115200)
+con = mavutil.mavlink_connection(port, baud=115200)
 con.wait_heartbeat()
 
 # 相机参数
