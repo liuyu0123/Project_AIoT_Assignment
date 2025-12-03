@@ -1,7 +1,7 @@
 from collections import deque
 import numpy as np
 import cv2
-from dronekit import connect, VehicleMode, LocationGlobalRelative, Command, LoactionGlobal
+from dronekit import connect, VehicleMode, LocationGlobalRelative, Command, LocationGlobal
 import time
 from pymavlink import mavutil
 
