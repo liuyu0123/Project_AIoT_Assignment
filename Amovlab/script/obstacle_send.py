@@ -1,5 +1,5 @@
 from pymavlink import mavutil
-import math, time, cv2
+import math, time, cv2, glob
 
 try:
     port = glob.glob('/dev/serial/by-id/usb-ArduPilot_fmuv3_*-if00')[0]  # 取第一个匹配
