@@ -50,6 +50,12 @@ def send_arr(arr):
 
 # 假视觉循环（替换成你的深度图）
 cap = cv2.VideoCapture(0)
+#cap = cv2.VideoCapture(0, cv2.CAP_V4L2)
+#cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc('M','J','P','G'))
+#cap.set(cv2.CAP_PROP_FRAME_WIDTH,  1280)
+#cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
+#cap.set(cv2.CAP_PROP_FPS, 30)
+
 while True:
     ret, frame = cap.read()
     h, w = frame.shape[:2]
