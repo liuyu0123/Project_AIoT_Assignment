@@ -31,6 +31,7 @@ pip install pyserial
 elif [ $board = "RaspberryPi3B" ]; then
 #树莓派3B，ubuntu20.04，系统python版本3.8
 sudo apt install libgl1-mesa-glx -y
+sudo apt install python3-pigpio -y
 
 env_name=dronekit-env
 if [ -d "$env_name" ]; then
