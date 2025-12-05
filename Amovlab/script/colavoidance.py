@@ -2,6 +2,8 @@ import cv2
 import numpy as np
 import os
 import time
+os.system ("sudo killall -9 pigpiod")
+os.system ("sudo rm -f /var/run/pigpio.pid")
 os.system ("sudo pigpiod") #Launching GPIO library
 time.sleep(1)
 import pigpio
@@ -20,14 +22,17 @@ turning_multiplier = 3.5 # obj_width(w) / half_frame or desired max width(a) * m
 
 #This is to pull the information about what each objct is called
 classNames = []
-classFile = "/home/uoirobo/Desktop/Object_Detection_Files/coco.names"
+# classFile = "/home/uoirobo/Desktop/Object_Detection_Files/coco.names"
+classFile = os.path.join(os.path.dirname(__file__), "..", "coco", "coco.names")
 with open(classFile,"rt") as f:
     classNames = f.read().rstrip("\n").split("\n")
 
 #This is to pull the information about what each object should look like
 #Change the path according to your setup.
-configPath = "/home/uoirobo/Desktop/Object_Detection_Files/ssd_mobilenet_v3_large_coco_2020_01_14.pbtxt"
-weightsPath = "/home/uoirobo/Desktop/Object_Detection_Files/frozen_inference_graph.pb"
+# configPath = "/home/uoirobo/Desktop/Object_Detection_Files/ssd_mobilenet_v3_large_coco_2020_01_14.pbtxt"
+# weightsPath = "/home/uoirobo/Desktop/Object_Detection_Files/frozen_inference_graph.pb"
+configPath = os.path.join(os.path.dirname(__file__), "..", "coco", "ssd_mobilenet_v3_large_coco_2020_01_14.pbtxt")
+weightsPath = os.path.join(os.path.dirname(__file__), "..", "coco", "frozen_inference_graph.pb")
 
 #This is some set up values to get good results
 net = cv2.dnn_DetectionModel(weightsPath,configPath)
@@ -82,7 +87,11 @@ def getObjects(img, thres, nms, draw=True, objects=[]):
     objectInfo =[]
     if len(classIds) != 0:
         for classId, confidence,box in zip(classIds.flatten(),confs.flatten(),bbox):
-            className = classNames[classId - 1]
+            # className = classNames[classId - 1]
+            try:
+                className = classNames[classId - 1]
+            except IndexError:
+                continue
             if className in objects: 
                 objectInfo.append([box,className])
                 
