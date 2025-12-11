@@ -50,7 +50,7 @@ class App(object):
 
 		# 手动曝光，曝光时间30ms
 		mvsdk.CameraSetAeState(hCamera, 0)
-		mvsdk.CameraSetExposureTime(hCamera, 30 * 1000)
+		mvsdk.CameraSetExposureTime(hCamera, 300 * 1000)
 
 		# 让SDK内部取图线程开始工作
 		mvsdk.CameraPlay(hCamera)
