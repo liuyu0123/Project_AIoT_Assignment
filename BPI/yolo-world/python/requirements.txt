@@ -1,0 +1,7 @@
+opencv-python
+numpy==2.2.6
+torch
+torchvision
+onnxruntime
+# spacemit-ort
+clip-for-odlabel
