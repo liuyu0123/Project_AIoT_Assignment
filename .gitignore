@@ -41,3 +41,6 @@ __init__.py
 *novel*txt
 */test2.4_workspace/src/demo_cpp_pkg/include/cpp-httplib
 fishbot2.urdf.xacro
+
+# yolo模型文件
+*.onnx
