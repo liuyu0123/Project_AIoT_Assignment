@@ -60,6 +60,8 @@ if __name__ == '__main__':
             running = False
             break
         if key == ord(' '):
+            # 保存视差图供肉眼检查
+            cv2.imwrite('debug_disp.png', dis_vis)
             pts = dis_to_3d(dis, rL)
             show_pcd(pts)
 
