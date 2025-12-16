@@ -2,17 +2,21 @@
 import cv2
 import numpy as np
 
+###########################################双目相机-内参#############################################3
+# MATLAB内参矩阵(fx,fy,cx,cy):stereoParams.CameraParameters1.K
+left_camera_matrix = np.array([[1.969e+03, 0, 1.045e+03], [0, 1.958e+03, 7.737e+02], [0, 0, 1]])
+# MATLAB径向畸变(k1,k2,k3):stereoParams.CameraParameters1.RadialDistortion
+# MATLAB切向畸变(p1,p2):stereoParams.CameraParameters1.TangentialDistortion
+left_distortion = np.array([[-0.477, -0.125, -0.0020, -0.0096, 0.795]]) #k1,k2,p1,p2,k3
 
-left_camera_matrix = np.array([[961.7192, 0, 295.3539], [0, 963.1369, 294.4663], [0, 0, 1]])
-left_distortion = np.array([[0.1351, 0.2322, 0.0017, -0.0023, 0]])
+right_camera_matrix = np.array([[1.991e+03, 0, 1.115e+03], [0, 1.958e+03, 7.593e+02], [0, 0, 1]])
+right_distortion = np.array([[-0.3763, 0.0819, 0.0049, 0.0088, 0.0493]])
 
-right_camera_matrix = np.array([[960.3725, 0, 300.5267], [0, 963.0802, 277.6427], [0, 0, 1]])
-right_distortion = np.array([[0.0965, 1.0347, 0.0044, -0.0042, 0]])
-
-R = np.array([[0.9996, -0.00055, 0.0289],
-              [0.00059, 1, -0.0015],
-              [-0.0289, 0.0015, 0.9996]])
-T = np.array([-84.8645, -0.0376, 1.3472])
+###########################################双目相机-外参#############################################3
+R = np.array([[0.9999, 0.0157, -0.0070],
+              [-0.0157, 0.9999, 0.0017],
+              [0.0070, -0.0016, 1.0000]])
+T = np.array([-138.5193, 0.6695, -5.3973])
 
 size = (640, 480)  # open windows size
 # R1:左摄像机旋转矩阵, P1:左摄像机投影矩阵, Q:重投影矩阵
