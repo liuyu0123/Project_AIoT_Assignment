@@ -1,5 +1,6 @@
 # realtime_all_color_pc.py
 import cv2, numpy as np, open3d as o3d, camera_configs as cfg, threading, queue, time, test_dual_cam_opt2 as cam
+from datetime import datetime
 
 # ---------- 相机参数 ----------
 # b, f = 84.89, 963          #  baseline(mm), 焦距(pixel)  如标定有变自行改
@@ -60,8 +61,12 @@ if __name__ == '__main__':
             running = False
             break
         if key == ord(' '):
+            # 获取当前时间戳并格式化为字符串
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            # 将时间戳添加到文件名中
+            file_name = f"debug_disp_{timestamp}.png"
             # 保存视差图供肉眼检查
-            cv2.imwrite('debug_disp.png', dis_vis)
+            cv2.imwrite(file_name, dis_vis)
             pts = dis_to_3d(dis, rL)
             show_pcd(pts)
 
