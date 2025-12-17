@@ -7,3 +7,5 @@
 pip install numpy
 pip install open3d
 pip install opencv-python
+#用于wls滤波
+opencv-contrib-python
