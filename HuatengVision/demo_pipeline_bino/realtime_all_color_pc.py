@@ -64,7 +64,7 @@ if __name__ == '__main__':
             # 获取当前时间戳并格式化为字符串
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
             # 将时间戳添加到文件名中
-            file_name = f"debug_disp_{timestamp}.png"
+            file_name = f"debug/debug_disp_{timestamp}.png"
             # 保存视差图供肉眼检查
             cv2.imwrite(file_name, dis_vis)
             pts = dis_to_3d(dis, rL)
