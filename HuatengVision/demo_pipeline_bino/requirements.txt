@@ -1,0 +1,11 @@
+# pip install -U pip
+# pip install opencv-python==4.10.0.82
+# pip install open3d==0.18.0
+# pip install -i https://pypi.org/simple open3d==0.18.0
+# pip install numpy
+
+pip install numpy
+pip install open3d
+pip install opencv-python
+#用于wls滤波
+opencv-contrib-python

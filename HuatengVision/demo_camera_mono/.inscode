@@ -1,0 +1,4 @@
+run = "pip install -r requirements.txt && python main.py" 
+is_gui = true 
+is_resident = true 
+is_html = false
