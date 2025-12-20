@@ -7,7 +7,7 @@ import sys
 
 def main():
     # 打开摄像头，索引1通常代表USB摄像头
-    cap = cv2.VideoCapture(1)
+    cap = cv2.VideoCapture(0)
     
     if not cap.isOpened():
         print("无法打开摄像头")
@@ -19,10 +19,11 @@ def main():
 
     # 执行shell脚本（请修改为你的实际脚本路径）
     try:
-        subprocess.run(["/home/camera.sh"], check=True)
+        camera_path = "/home/riba/Documents/LIUYU/HuatengVision/demo_camera_bino_1usb/camera.sh"
+        subprocess.run([camera_path], check=True)
         print("摄像头脚本执行成功")
     except FileNotFoundError:
-        print("警告：未找到摄像头脚本 /home/camera.sh")
+        print("警告：未找到摄像头脚本 ", camera_path)
     except subprocess.CalledProcessError:
         print("警告：摄像头脚本执行失败")
 
@@ -40,15 +41,15 @@ def main():
         resized_frame = cv2.resize(frame, (640, 240), interpolation=cv2.INTER_AREA)
         
         # 显示双目视图
-        cv2.imshow("【双目视图】", resized_frame)
+        cv2.imshow("stereo camera", resized_frame)
         
         # 分割为左右视图
         left_image = resized_frame[:, 0:320]  # 左视图：第0-319列
         right_image = resized_frame[:, 320:640]  # 右视图：第320-639列
         
         # 显示左右视图
-        cv2.imshow("【左视图】", left_image)
-        cv2.imshow("【右视图】", right_image)
+        cv2.imshow("left", left_image)
+        cv2.imshow("right", right_image)
 
         # 等待30ms，按ESC键退出
         key = cv2.waitKey(30) & 0xFF
