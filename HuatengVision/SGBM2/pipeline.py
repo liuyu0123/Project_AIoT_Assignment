@@ -45,25 +45,25 @@ def show_calibrated_image_pair(if_show):
     left_rectified = cv2.remap(left_image, left_map1, left_map2, cv2.INTER_LINEAR)
     right_rectified = cv2.remap(right_image, right_map1, right_map2, cv2.INTER_LINEAR)
 
-    # 创建一个大画布，用于显示四个子图
-    canvas_height = left_image.shape[0] * 2
-    canvas_width = left_image.shape[1] * 2
-    canvas = np.zeros((canvas_height, canvas_width, 3), dtype=np.uint8)
-
-    # 将四个图像放置到画布上
-    canvas[:left_image.shape[0], :left_image.shape[1]] = left_image  # 左上：原始左图
-    canvas[:right_image.shape[0], left_image.shape[1]:] = right_image  # 右上：原始右图
-    canvas[left_image.shape[0]:, :left_image.shape[1]] = left_rectified  # 左下：校正左图
-    canvas[left_image.shape[0]:, left_image.shape[1]:] = right_rectified  # 右下：校正右图
-
-    # 添加文字说明
-    font = cv2.FONT_HERSHEY_SIMPLEX
-    cv2.putText(canvas, "Original Left", (10, 30), font, 1, (255, 255, 255), 2)
-    cv2.putText(canvas, "Original Right", (left_image.shape[1] + 10, 30), font, 1, (255, 255, 255), 2)
-    cv2.putText(canvas, "Rectified Left", (10, left_image.shape[0] + 30), font, 1, (255, 255, 255), 2)
-    cv2.putText(canvas, "Rectified Right", (left_image.shape[1] + 10, left_image.shape[0] + 30), font, 1, (255, 255, 255), 2)
-
     if if_show:
+        # 创建一个大画布，用于显示四个子图
+        canvas_height = left_image.shape[0] * 2
+        canvas_width = left_image.shape[1] * 2
+        canvas = np.zeros((canvas_height, canvas_width, 3), dtype=np.uint8)
+
+        # 将四个图像放置到画布上
+        canvas[:left_image.shape[0], :left_image.shape[1]] = left_image  # 左上：原始左图
+        canvas[:right_image.shape[0], left_image.shape[1]:] = right_image  # 右上：原始右图
+        canvas[left_image.shape[0]:, :left_image.shape[1]] = left_rectified  # 左下：校正左图
+        canvas[left_image.shape[0]:, left_image.shape[1]:] = right_rectified  # 右下：校正右图
+
+        # 添加文字说明
+        font = cv2.FONT_HERSHEY_SIMPLEX
+        cv2.putText(canvas, "Original Left", (10, 30), font, 1, (255, 255, 255), 2)
+        cv2.putText(canvas, "Original Right", (left_image.shape[1] + 10, 30), font, 1, (255, 255, 255), 2)
+        cv2.putText(canvas, "Rectified Left", (10, left_image.shape[0] + 30), font, 1, (255, 255, 255), 2)
+        cv2.putText(canvas, "Rectified Right", (left_image.shape[1] + 10, left_image.shape[0] + 30), font, 1, (255, 255, 255), 2)
+
         # 显示缩放后的画布
         cv2.imshow("Image Comparison", reshape_img(canvas, scale_factor=0.5))
         cv2.waitKey(0)
@@ -226,8 +226,8 @@ def pointcloud_show(disparity):
 if __name__ == '__main__':
     # show_calibrated_image()
     left_rectified, right_rectified = show_calibrated_image_pair(if_show=False)
-    disparity, sgbm = sgbm_show(left_rectified, right_rectified, 13, 10, if_show=False)
-    filtered_disparity = wls_show(left_rectified, right_rectified, disparity, sgbm, 1500, 1.5)
-    pointcloud_show(disparity)
+    disparity, sgbm = sgbm_show(left_rectified, right_rectified, 13, 10, if_show=True)
+    # filtered_disparity = wls_show(left_rectified, right_rectified, disparity, sgbm, 1500, 1.5)
+    # pointcloud_show(disparity)
     # pointcloud_show(filtered_disparity)
     # sgbm_show_debug(left_rectified, right_rectified)
