@@ -8,8 +8,8 @@ from camera_configs_auto import CamConf
 # parent_path = r'D:\AIoT\HuatengVision\SGBM\test1'
 # left_image = cv2.imread(parent_path+"\\left_003.png")
 # right_image = cv2.imread(parent_path+"\\right_003.png")
-left_path = r'D:\AIoT\HuatengVision\calibrate_camera_bino\calib\test1\left\001.png'
-right_path = r'D:\AIoT\HuatengVision\calibrate_camera_bino\calib\test1\right\001.png'
+left_path = r"D:\Files\Data\ImageStereo\Data3\test\left\001.png"
+right_path = r"D:\Files\Data\ImageStereo\Data3\test\right\001.png"
 left_image = cv2.imread(left_path)
 right_image = cv2.imread(right_path)
 if left_image is None or right_image is None:
@@ -78,18 +78,19 @@ def sgbm_show(left_image, right_image, num, blockSize, if_show):
     # 创建 SGBM 对象
     # blockSize = 16
     # num = 25
-    sgbm = cv2.StereoSGBM_create(
-        minDisparity=0,
-        numDisparities=16 * num,  # 根据焦距和基线调整
-        blockSize=blockSize,
-        P1=8 * 3 * blockSize ** 2,
-        P2=32 * 3 * blockSize ** 2,
-        disp12MaxDiff=1,
-        preFilterCap=63,
-        uniquenessRatio=10,
-        speckleWindowSize=100,
-        speckleRange=32
-    )
+    # sgbm = cv2.StereoSGBM_create(
+    #     minDisparity=0,
+    #     numDisparities=16 * num,  # 根据焦距和基线调整
+    #     blockSize=blockSize,
+    #     P1=8 * 3 * blockSize ** 2,
+    #     P2=32 * 3 * blockSize ** 2,
+    #     disp12MaxDiff=1,
+    #     preFilterCap=63,
+    #     uniquenessRatio=10,
+    #     speckleWindowSize=100,
+    #     speckleRange=32
+    # )
+    sgbm = cv2.StereoSGBM_create(minDisparity=0, numDisparities=16*num, blockSize=blockSize)
     # 计算视差图并转换视差图格式（SGBM输出为16位有符号整数，需要转换为32位浮点数）
     disparity = sgbm.compute(left_image, right_image).astype(np.float32) / 16.0
     # 归一化视差图
@@ -225,8 +226,8 @@ def pointcloud_show(disparity):
 
 if __name__ == '__main__':
     # show_calibrated_image()
-    left_rectified, right_rectified = show_calibrated_image_pair(if_show=False)
-    disparity, sgbm = sgbm_show(left_rectified, right_rectified, 13, 10, if_show=True)
+    left_rectified, right_rectified = show_calibrated_image_pair(if_show=True)
+    disparity, sgbm = sgbm_show(left_rectified, right_rectified, 9, 10, if_show=True)
     # filtered_disparity = wls_show(left_rectified, right_rectified, disparity, sgbm, 1500, 1.5)
     # pointcloud_show(disparity)
     # pointcloud_show(filtered_disparity)
