@@ -6,13 +6,13 @@ import pdb
 
 
 # 加载图像
-parent_path = r'D:\AIoT\HuatengVision\SGBM\test1'
-left_image = cv2.imread(parent_path+"\\left_005.png")
-right_image = cv2.imread(parent_path+"\\right_005.png")
-# left_path = r'D:\AIoT\HuatengVision\calibrate_camera_bino\calib\test1\left\001.png'
-# right_path = r'D:\AIoT\HuatengVision\calibrate_camera_bino\calib\test1\right\001.png'
-# left_image = cv2.imread(left_path)
-# right_image = cv2.imread(right_path)
+# parent_path = r'D:\AIoT\HuatengVision\SGBM\test1'
+# left_image = cv2.imread(parent_path+"\\left_003.png")
+# right_image = cv2.imread(parent_path+"\\right_003.png")
+left_path = r"D:\Files\Data\ImageStereo\Data3\test\left\001.png"
+right_path = r"D:\Files\Data\ImageStereo\Data3\test\right\001.png"
+left_image = cv2.imread(left_path)
+right_image = cv2.imread(right_path)
 if left_image is None or right_image is None:
     print("Error: Unable to load images. Please check the file paths.")
     exit()
@@ -46,25 +46,25 @@ def show_calibrated_image_pair(if_show):
     left_rectified = cv2.remap(left_image, left_map1, left_map2, cv2.INTER_LINEAR)
     right_rectified = cv2.remap(right_image, right_map1, right_map2, cv2.INTER_LINEAR)
 
-    # 创建一个大画布，用于显示四个子图
-    canvas_height = left_image.shape[0] * 2
-    canvas_width = left_image.shape[1] * 2
-    canvas = np.zeros((canvas_height, canvas_width, 3), dtype=np.uint8)
-
-    # 将四个图像放置到画布上
-    canvas[:left_image.shape[0], :left_image.shape[1]] = left_image  # 左上：原始左图
-    canvas[:right_image.shape[0], left_image.shape[1]:] = right_image  # 右上：原始右图
-    canvas[left_image.shape[0]:, :left_image.shape[1]] = left_rectified  # 左下：校正左图
-    canvas[left_image.shape[0]:, left_image.shape[1]:] = right_rectified  # 右下：校正右图
-
-    # 添加文字说明
-    font = cv2.FONT_HERSHEY_SIMPLEX
-    cv2.putText(canvas, "Original Left", (10, 30), font, 1, (255, 255, 255), 2)
-    cv2.putText(canvas, "Original Right", (left_image.shape[1] + 10, 30), font, 1, (255, 255, 255), 2)
-    cv2.putText(canvas, "Rectified Left", (10, left_image.shape[0] + 30), font, 1, (255, 255, 255), 2)
-    cv2.putText(canvas, "Rectified Right", (left_image.shape[1] + 10, left_image.shape[0] + 30), font, 1, (255, 255, 255), 2)
-
     if if_show:
+        # 创建一个大画布，用于显示四个子图
+        canvas_height = left_image.shape[0] * 2
+        canvas_width = left_image.shape[1] * 2
+        canvas = np.zeros((canvas_height, canvas_width, 3), dtype=np.uint8)
+
+        # 将四个图像放置到画布上
+        canvas[:left_image.shape[0], :left_image.shape[1]] = left_image  # 左上：原始左图
+        canvas[:right_image.shape[0], left_image.shape[1]:] = right_image  # 右上：原始右图
+        canvas[left_image.shape[0]:, :left_image.shape[1]] = left_rectified  # 左下：校正左图
+        canvas[left_image.shape[0]:, left_image.shape[1]:] = right_rectified  # 右下：校正右图
+
+        # 添加文字说明
+        font = cv2.FONT_HERSHEY_SIMPLEX
+        cv2.putText(canvas, "Original Left", (10, 30), font, 1, (255, 255, 255), 2)
+        cv2.putText(canvas, "Original Right", (left_image.shape[1] + 10, 30), font, 1, (255, 255, 255), 2)
+        cv2.putText(canvas, "Rectified Left", (10, left_image.shape[0] + 30), font, 1, (255, 255, 255), 2)
+        cv2.putText(canvas, "Rectified Right", (left_image.shape[1] + 10, left_image.shape[0] + 30), font, 1, (255, 255, 255), 2)
+
         # 显示缩放后的画布
         cv2.imshow("Image Comparison", reshape_img(canvas, scale_factor=0.5))
         cv2.waitKey(0)
@@ -79,18 +79,19 @@ def sgbm_show(left_image, right_image, num, blockSize, if_show):
     # 创建 SGBM 对象
     # blockSize = 16
     # num = 25
-    sgbm = cv2.StereoSGBM_create(
-        minDisparity=0,
-        numDisparities=16 * num,  # 根据焦距和基线调整
-        blockSize=blockSize,
-        P1=8 * 3 * blockSize ** 2,
-        P2=32 * 3 * blockSize ** 2,
-        disp12MaxDiff=1,
-        preFilterCap=63,
-        uniquenessRatio=10,
-        speckleWindowSize=100,
-        speckleRange=32
-    )
+    # sgbm = cv2.StereoSGBM_create(
+    #     minDisparity=0,
+    #     numDisparities=16 * num,  # 根据焦距和基线调整
+    #     blockSize=blockSize,
+    #     P1=8 * 3 * blockSize ** 2,
+    #     P2=32 * 3 * blockSize ** 2,
+    #     disp12MaxDiff=1,
+    #     preFilterCap=63,
+    #     uniquenessRatio=10,
+    #     speckleWindowSize=100,
+    #     speckleRange=32
+    # )
+    sgbm = cv2.StereoSGBM_create(minDisparity=0, numDisparities=16*num, blockSize=blockSize)
     # 计算视差图并转换视差图格式（SGBM输出为16位有符号整数，需要转换为32位浮点数）
     disparity = sgbm.compute(left_image, right_image).astype(np.float32) / 16.0
     # 归一化视差图
@@ -283,8 +284,8 @@ def getDepthMapWithQ(disparityMap: np.ndarray, Q: np.ndarray) -> np.ndarray:
 if __name__ == '__main__':
     # show_calibrated_image()
     left_rectified, right_rectified = show_calibrated_image_pair(if_show=True)
-    disparity, sgbm = sgbm_show(left_rectified, right_rectified, 13, 10, if_show=False)
-    filtered_disparity = wls_show(left_rectified, right_rectified, disparity, sgbm, 1500, 1.5, if_show=True)
+    disparity, sgbm = sgbm_show(left_rectified, right_rectified, 9, 10, if_show=True)
+    # filtered_disparity = wls_show(left_rectified, right_rectified, disparity, sgbm, 1500, 1.5)
     # pointcloud_show(disparity)
     # pointcloud_show(filtered_disparity)
     # sgbm_show_debug(left_rectified, right_rectified)

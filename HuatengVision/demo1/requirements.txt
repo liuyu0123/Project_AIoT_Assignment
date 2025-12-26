@@ -1,0 +1,26 @@
+# requirements.txt
+# Python版本: 3.8-3.11
+
+# 深度学习框架
+torch>=1.12.0,<2.0.0
+torchvision>=0.13.0,<0.15.0
+
+# 计算机视觉
+opencv-python==4.8.1.78
+opencv-contrib-python==4.8.1.78  # 如需额外功能
+
+# 数值计算
+numpy==1.24.3
+scipy==1.10.1
+
+# 可选：GUI支持（如需开发界面）
+PyQt5==5.15.9
+
+# 可选：结果可视化
+matplotlib==3.7.2
+
+# 可选：3D可视化
+open3d==0.17.0
+
+# 建议用于性能优化
+numba==0.57.1  # 加速计算
