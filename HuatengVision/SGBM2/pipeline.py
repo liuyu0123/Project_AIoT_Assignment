@@ -2,6 +2,7 @@
 import cv2
 import numpy as np
 from camera_configs_auto import CamConf
+import pdb
 
 
 # 加载图像
@@ -140,7 +141,7 @@ def sgbm_show_debug(left_image, right_image):
             cv2.destroyAllWindows()
 
 
-def wls_show(left_image, right_image, disparity, sgbm, wls_lambda, wls_sigma):
+def wls_show(left_image, right_image, disparity, sgbm, wls_lambda, wls_sigma, if_show):
     # # 将校正后的图像转换为灰度图
     left_gray = cv2.cvtColor(left_image, cv2.COLOR_BGR2GRAY)
     right_gray = cv2.cvtColor(right_image, cv2.COLOR_BGR2GRAY)
@@ -172,10 +173,12 @@ def wls_show(left_image, right_image, disparity, sgbm, wls_lambda, wls_sigma):
     canvas = np.hstack((disparity_color, filtered_color))
     cv2.putText(canvas, "Original Disparity", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
     cv2.putText(canvas, "WLS Filtered Disparity", (left_gray.shape[1] + 10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
-    # 显示结果
-    cv2.imshow("Disparity Comparison (Original vs WLS Filtered)", reshape_img(canvas, 0.5))
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
+
+    if if_show:
+        # 显示结果
+        cv2.imshow("Disparity Comparison (Original vs WLS Filtered)", reshape_img(canvas, 0.5))
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
     
     return filtered_disparity
 
@@ -207,8 +210,8 @@ def pointcloud_show(disparity):
     i = 0
     for row in range(disparity.shape[0]):
         for col in range(disparity.shape[1]):
-            if(disparity[row][col] != 0 and disparity[row][col] != (-16) and disparity[row][col]>1100 and disparity[row][col]<1570):
-            # if(disparity[row][col] != 0 and disparity[row][col] != (-16)):
+            # if(disparity[row][col] != 0 and disparity[row][col] != (-16) and disparity[row][col]>1100 and disparity[row][col]<1570):
+            if(disparity[row][col] != 0 and disparity[row][col] != (-16)):
                 output_points[i][0] = 16*b*(col-cx)/disparity[row][col]
                 output_points[i][1] = 16*b*(row-cy)/disparity[row][col]
                 output_points[i][2] = 16*b*f/disparity[row][col]
@@ -223,6 +226,60 @@ def pointcloud_show(disparity):
     pass
 
 
+def depthmap_show(disparity_map, focal_length, baseline, invalid_value=1):
+    """
+    从 SGBM 视差图生成深度图
+    :param disparity_map: 视差图（二维数组，类型为 np.float32 或 np.uint8）
+    :param focal_length: 相机焦距（单位：像素）
+    :param baseline: 相机基线距离（单位：毫米或米）
+    :param invalid_value: 用于替换无效视差值的小数值（默认为 1，值为整形，设0.1会出错）
+    :return: 深度图（二维数组，类型为 np.float32）和归一化后的深度图（二维数组，类型为 np.uint8）
+    """
+    if_debug = False
+    if if_debug:
+        print("Min disparity:", np.min(disparity_map))
+        print("Max disparity:", np.max(disparity_map))
+        print("Mean disparity:", np.mean(disparity_map))
+        pdb.set_trace()
+
+    # 处理无效视差值
+    valid_mask = disparity_map > 0  # 有效的视差值大于 0
+    valid_mask = (disparity_map > 0) & (disparity_map != -16) & (disparity_map != 0)
+    valid_mask = (disparity_map > 5) & (disparity_map < 255)
+    disparity_map[~valid_mask] = invalid_value  # 将无效值替换为一个非常小的值
+
+    if if_debug:
+        print("Valid mask:", valid_mask)
+        print("Fixed Min disparity:", np.min(disparity_map))
+        print("Fixed Max disparity:", np.max(disparity_map))
+        print("Fixed Mean disparity:", np.mean(disparity_map))
+
+    # 计算深度图
+    depth_map = (focal_length * baseline) / disparity_map
+
+    # 归一化深度图以便可视化
+    depth_map_normalized = cv2.normalize(depth_map, None, 0, 255, cv2.NORM_MINMAX, dtype=cv2.CV_8U)
+
+    # 显示深度图
+    cv2.imshow("SGDB (Normalized)", reshape_img(disparity_map, 0.5))
+    cv2.imshow("Depth Map (Normalized)", reshape_img(depth_map_normalized, 0.5))
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+    return depth_map, depth_map_normalized
+
+
+def getDepthMapWithQ(disparityMap: np.ndarray, Q: np.ndarray) -> np.ndarray:
+    points_3d = cv2.reprojectImageTo3D(disparityMap, Q)
+    depthMap = points_3d[:, :, 2]
+    reset_index = np.where(np.logical_or(depthMap < 0.0, depthMap > 65535.0))
+    depthMap[reset_index] = 0
+    cv2.imshow("SGDB (Normalized)", reshape_img(disparityMap, 0.5))
+    cv2.imshow("Depth Map (Normalized)", reshape_img(depthMap, 0.5))
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+    return depthMap.astype(np.float32)
+
+
 
 if __name__ == '__main__':
     # show_calibrated_image()
@@ -232,3 +289,5 @@ if __name__ == '__main__':
     # pointcloud_show(disparity)
     # pointcloud_show(filtered_disparity)
     # sgbm_show_debug(left_rectified, right_rectified)
+    # depth_map, depth_map_normalized = depthmap_show(disparity, f, b)
+    depthMap = getDepthMapWithQ(disparity, CamConf['Q'])

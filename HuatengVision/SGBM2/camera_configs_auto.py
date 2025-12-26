@@ -43,6 +43,7 @@ def load_camera_config(json_file):
     b = 1 / Q[3][2]
     f = Q[2][3]
     cx, cy = -Q[0][3], -Q[1][3]
+    CamConf['Q'] = Q
 
     return left_camera_matrix, left_distortion, right_camera_matrix, right_distortion, R, T, \
         left_map1, left_map2, right_map1, right_map2, b, f, cx, cy
