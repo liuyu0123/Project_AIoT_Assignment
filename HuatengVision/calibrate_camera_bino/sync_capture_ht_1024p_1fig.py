@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-HT-UBS300C-T 工业双目标定拍照脚本
+HT-UBS300C-T 工业双目标定拍照脚本（拼接版）
     光圈/曝光/模拟增益/分辨率 四项已锁死，标定期间严禁再动！
 """
 import mvsdk
@@ -23,8 +23,7 @@ APERTURE_F  = 2.0           # 镜头光圈环刻度（仅供记录，物理锁�
 
 OUT_DIR     = "calib"
 SYNC_TH_MS  = 10            # 时间戳差 < 10 ms 认为同步
-# RES_W, RES_H = 1280, 720    # 目标分辨率（索引 1 通常是 720p）
-RES_W, RES_H = 1024, 768    # 目标分辨率（索引 1 通常是 720p）
+RES_W, RES_H = 1024, 768    # 目标分辨率
 
 def sdk_open_calib_camera(dev_idx):
     devs = mvsdk.CameraEnumerateDevice()
@@ -50,20 +49,15 @@ def sdk_open_calib_camera(dev_idx):
     mvsdk.CameraSetAnalogGainX(hcam, ANALOG_GAIN)
     mvsdk.CameraSetFrameSpeed(hcam, FRAME_SPEED)
 
-    # 选 1280×720
-    # res_720p = next((cap.pImageSizeDesc[i] for i in range(cap.iImageSizeDesc)
-    #                  if cap.pImageSizeDesc[i].iWidth == RES_W and cap.pImageSizeDesc[i].iHeight == RES_H),
-    #                 cap.pImageSizeDesc[0])
-    target_idx = 5  # 或打印后看到的正确索引
-    res_720p = cap.pImageSizeDesc[target_idx]
-    mvsdk.CameraSetImageResolution(hcam, res_720p)
-
+    # 选 1024×768（索引 5，可按实际打印调整）
+    target_idx = 5
+    res_target = cap.pImageSizeDesc[target_idx]
+    mvsdk.CameraSetImageResolution(hcam, res_target)
 
     mvsdk.CameraPlay(hcam)
     buf_size = cap.sResolutionRange.iWidthMax * cap.sResolutionRange.iHeightMax * (1 if mono else 3)
     frame_buf = mvsdk.CameraAlignMalloc(buf_size, 16)
     return hcam, frame_buf, (RES_W, RES_H)
-
 
 def grab_frame(hcam, buf, shape):
     try:
@@ -81,25 +75,30 @@ def grab_frame(hcam, buf, shape):
             print("grab error:", e.message)
         return None, None
 
+def save_stereo_image(left, right, tL, tR, idx):
+    os.makedirs(OUT_DIR, exist_ok=True)
+    # 横向拼接
+    stereo = np.hstack([left, right])
+    # 文件名带毫秒时间戳，防止覆盖
+    ts_str = datetime.datetime.now().strftime("%Y%m%d_%H%M%S_%f")[:-3]
+    fname = f"sync_{ts_str}.png"
+    fpath = os.path.join(OUT_DIR, fname)
+    cv2.imwrite(fpath, stereo)
 
-def save_calib_image(left, right, idx):
-    os.makedirs(f"{OUT_DIR}/left", exist_ok=True)
-    os.makedirs(f"{OUT_DIR}/right", exist_ok=True)
-    cv2.imwrite(f"{OUT_DIR}/left/{idx:03d}.png", left)
-    cv2.imwrite(f"{OUT_DIR}/right/{idx:03d}.png", right)
     # 记录参数
     with open(f"{OUT_DIR}/calib_info.txt", "a", encoding="utf-8") as f:
-        f.write(f"{idx:03d}  "
+        f.write(f"{fname}  "
                 f"aperture=F{APERTURE_F}  "
                 f"exp={EXP_US}us  "
                 f"gain={ANALOG_GAIN}dB  "
                 f"res={RES_W}x{RES_H}  "
-                f"speed={FRAME_SPEED}\n")
-
+                f"speed={FRAME_SPEED}  "
+                f"sync-diff={abs((tL - tR).total_seconds()) * 1000:.1f} ms\n")
+    return fname
 
 def main():
     left_cam, left_buf, shape = sdk_open_calib_camera(LEFT_CAM_IDX)
-    right_cam, right_buf, _ = sdk_open_calib_camera(RIGHT_CAM_IDX)
+    right_cam, right_buf, _   = sdk_open_calib_camera(RIGHT_CAM_IDX)
     print("左右工业相机已打开，参数已锁定用于标定：")
     print(f"  光圈刻度 = F{APERTURE_F}（物理锁死）")
     print(f"  曝光时间 = {EXP_US} us")
@@ -119,22 +118,22 @@ def main():
             continue
 
         preview = cv2.hconcat([frmL, frmR])
-        # cv2.imshow("calib_preview (ESC--quit, Space--capture)", cv2.resize(preview, (RES_W // 2, RES_H // 2)))
-        # cv2.imshow("calib_preview (ESC--quit, Space--capture)", cv2.resize(preview, (RES_W , RES_H // 2)))
-        cv2.imshow("calib_preview (ESC--quit, Space--capture)", cv2.resize(preview, (int(RES_W * 1.5) , int(RES_H // 2 * 1.5))))
+        cv2.imshow("calib_preview (ESC--quit, Space--capture)",
+                   cv2.resize(preview, (int(RES_W * 1.5), int(RES_H // 2 * 1.5))))
         key = cv2.waitKey(1) & 0xFF
         if key == 27:
             break
         if key == ord(' '):
-            save_calib_image(frmL, frmR, count)
-            print(f"saved {count:03d}  sync-diff={abs((tL - tR).total_seconds()) * 1000:.1f} ms")
+            fname = save_stereo_image(frmL, frmR, tL, tR, count)
+            print(f"saved {fname}  sync-diff={abs((tL - tR).total_seconds()) * 1000:.1f} ms")
             count += 1
 
-    # 生成文件列表
+    # 生成文件列表（仅列出本次生成的 sync_*.png）
     with open(f"{OUT_DIR}/calib_list.txt", "w") as f:
-        for i in range(count):
-            f.write(f"left/{i:03d}.png  right/{i:03d}.png\n")
-    print(f"[v] 已保存 {count} 组标定图片，列表见 {OUT_DIR}/calib_list.txt")
+        for fn in sorted(os.listdir(OUT_DIR)):
+            if fn.startswith("sync_") and fn.endswith(".png"):
+                f.write(fn + "\n")
+    print(f"[v] 已保存 {count} 组拼接标定图片，列表见 {OUT_DIR}/calib_list.txt")
 
     # 清理
     mvsdk.CameraUnInit(left_cam)
