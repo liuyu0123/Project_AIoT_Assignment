@@ -14,10 +14,13 @@ import queue
 import platform
 
 OUT_DIR = "stereo_videos"
-EXP_US = 30000          # 30 ms 曝光
+EXP_US = 1500          # 30 ms 曝光
 GAIN_DB = 12            # 6 dB 增益
 SYNC_TH_MS = 10        # 时间戳差 < 10 ms 即认为同步
 FRAME_SPEED = 2        # 0=低速 1=普通 2=高速（120 fps）
+
+LEFT_CAM_IDX = 1
+RIGHT_CAM_IDX = 0
 
 # -------------------------------------------------
 def sdk_open_camera(dev_idx):
@@ -143,8 +146,8 @@ def main():
     for i, d in enumerate(devs):
         print(f"{i}: {d.GetFriendlyName()}  {d.GetPortType()}")
     # 默认用 0 1，如需改手动输入
-    left_idx = 1
-    right_idx = 0
+    left_idx = LEFT_CAM_IDX
+    right_idx = RIGHT_CAM_IDX
     sync_record(left_idx, right_idx)
 
 
