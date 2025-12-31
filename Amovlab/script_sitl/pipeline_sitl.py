@@ -304,6 +304,63 @@ def run():
             time.sleep(10)
 
 
+def run_new():
+    # 1. 设置参数
+    # BendyRuler 更适合处理实时的 OBSTACLE_DISTANCE 数据流进行动态避障
+    params = {
+        'FRAME_CLASS': 2,   # 2=HEX (根据您的实际载具调整)
+        'ARMING_CHECK': 0,  # 0=跳过全部自检
+        'OA_TYPE': 3,       # 修改为 1 (BendyRuler) - 这是正确的值
+        'AVOID_MARGIN': 2,  # 避障安全边距(米)，替代之前的OA_LOOKAHEAD
+        'OA_MARGIN_MAX': 5, # 最大避障边距(米)，替代之前的OA_MARGIN
+    }
+    for name, val in params.items():
+        param_set(name, float(val))
+
+    # 检查 GPS
+    check_gps(gps_check=True)
+    
+    # 解锁飞控
+    vehicle_arming()
+    
+    # 切换模式
+    set_mode(mode_id=15)
+    
+    # 稍作等待
+    time.sleep(1.0)
+
+    # 轨迹点定义
+    vehicle_trajectory = [
+        30.2491416, 120.1524201,
+        30.2489285, 120.1520070,
+        30.2485485, 120.1522163,
+        30.2487524, 120.1527795
+    ]
+    
+    loop_times = 1
+    
+    # --- 开始循环移动 ---
+    for _ in range(loop_times):
+        for i in range(0, len(vehicle_trajectory), 2):
+            target_lat = vehicle_trajectory[i]
+            target_lon = vehicle_trajectory[i+1]
+            
+            # 发送目标点指令 (只发送一次，飞控会自动持续追踪)
+            running2position(con, speed_ms=3, target_lat=target_lat, target_lon=target_lon)
+            
+            # 关键修改：在向下一个点移动的过程中，持续发送障碍物数据
+            # 假设两点之间飞行/航行时间约为 10 秒
+            start_time = time.time()
+            while time.time() - start_time < 10:
+                # 实时计算并发送障碍物距离数组
+                send_obstacle(con)
+                
+                # 控制发送频率 (例如 10Hz)，避免阻塞消息队列
+                time.sleep(0.1) 
+                
+            print(f"已到达航点 {i//2 + 1}")
+
+    print("任务结束")
 
 
 
