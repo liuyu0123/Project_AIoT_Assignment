@@ -1,10 +1,17 @@
 from pymavlink import mavutil
 import time, glob, math
+import numpy as np
 
 con = mavutil.mavlink_connection('udp:10.16.44.241:14551')
 con.wait_heartbeat()
 print("飞控心跳正常")
 
+# 世界坐标障碍物
+OBSTACLES_WGS = [
+    (30.2491416, 120.1524201, 4.0),   # (lat, lon, radius_m)
+    (30.2489285, 120.1520070, 4.0),
+]
+print('=== 全局级 OBSTACLES_WGS =', OBSTACLES_WGS)
 
 def check_gps(gps_check=True):
     # 1. 解锁前检查
@@ -150,6 +157,81 @@ def running2position(conn, speed_ms=3, target_lat=None, target_lon=None):
     print(f"Guided → 目标点 {target_lat:.7f},{target_lon:.7f}  巡航速度 {speed_ms} m/s")
 
 
+
+
+def wgs_to_body(lat_ship, lon_ship, hdg_ship,
+                lat_obs, lon_obs):
+    """返回 (forward_m, right_m) 船体坐标"""
+    # 简单平面近似
+    dLat = lat_obs - lat_ship
+    dLon = lon_obs - lon_ship
+    north = dLat * 111320.0
+    east  = dLon * 111320.0 * math.cos(math.radians(lat_ship))
+    # 旋转到船体 FRD
+    hdg = math.radians(hdg_ship)
+    f =  north * math.cos(hdg) + east * math.sin(hdg)
+    r = -north * math.sin(hdg) + east * math.cos(hdg)
+    return f, r
+
+
+def gen_distance_array(master):
+    print('=== 模块级 OBSTACLES_WGS =', OBSTACLES_WGS)
+    """根据当前船位+障碍物→distances[72]"""
+    N = 72
+    angles = np.linspace(0, 360, N, endpoint=False)
+    dist_cm = [65535] * N          # 65535 = 无检测
+    # 取本船 GPS、航向
+    g = master.recv_match(type='GLOBAL_POSITION_INT', blocking=True, timeout=1)
+    if not g:
+        return dist_cm
+    lat_s = g.lat * 1e-7
+    lon_s = g.lon * 1e-7
+    hdg_s = g.hdg * 1e-2           # deg
+
+    for lat_o, lon_o, r_o in OBSTACLES_WGS:
+        print('正在处理障碍物...')
+        print('boat  lat=%.7f  lon=%.7f  hdg=%.1f°' % (lat_s, lon_s, hdg_s))
+        print('obs   lat=%.7f  lon=%.7f  r=%.1f m' % (lat_o, lon_o, r_o))
+        f, r = wgs_to_body(lat_s, lon_s, hdg_s, lat_o, lon_o)
+        rng = math.hypot(f, r) - r_o
+        if rng <= 0:               # 船已在障碍物内， clamp 1 cm
+            rng = 0.01
+        # if rng > 30:               # 30 m 外忽略
+        #     continue
+        # 计算遮挡角度范围
+        ang_obs = math.degrees(math.atan2(r, f)) % 360
+        # width   = 3 * math.degrees(math.atan2(r_o, rng))
+        width   = max(10.0, math.degrees(math.atan2(r_o, rng)) * 2)
+        for i, a in enumerate(angles):
+            delta = min(abs(a - ang_obs), 360 - abs(a - ang_obs))
+            if delta <= width:
+                d_cm = int(rng * 100)
+                # 取最近距离
+                if dist_cm[i] == 65535 or d_cm < dist_cm[i]:
+                    dist_cm[i] = d_cm
+    return list(dist_cm)
+
+
+def send_obstacle(master):
+    arr = gen_distance_array(master)   # arr 已是 list
+    print("正在发送障碍物信息...")
+    print('sent OBSTACLE_DISTANCE:', len(arr), 'pts, min=%d max=%d cm' % (min(arr), max(arr)))
+    master.mav.obstacle_distance_send(
+        int(time.time() * 1000000),     # time_usec (μs)
+        mavutil.mavlink.MAV_DISTANCE_SENSOR_LASER,
+        arr,                            # 长度 72 的 list
+        5,                              # increment [deg]
+        0,                              # min_distance
+        30,                             # max_distance
+        0.0,                            # increment_f
+        0,                              # angle_offset
+        mavutil.mavlink.MAV_FRAME_BODY_FRD
+    )
+
+
+
+
+
 def run():
     # 检查 GPS
     check_gps(gps_check=True)
@@ -157,6 +239,9 @@ def run():
     vehicle_arming()
     # 切换模式
     set_mode(mode_id=15)
+    # 发送障碍物信息
+    # send_obstacle(con)
+    time.sleep(1.0)
     # 运动
     vehicle_trajectory = [
         30.2491416, 120.1524201,
@@ -165,7 +250,7 @@ def run():
         30.2487524, 120.1527795
     ]
     # running2position(con, speed_ms=3)
-    loop_times = 2
+    loop_times = 1
     for _ in range(loop_times):
         for i in range(0, len(vehicle_trajectory), 2):
             running2position(con, speed_ms=3, target_lat=vehicle_trajectory[i], target_lon=vehicle_trajectory[i+1])
