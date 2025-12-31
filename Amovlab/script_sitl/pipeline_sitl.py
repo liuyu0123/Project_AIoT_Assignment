@@ -13,6 +13,44 @@ OBSTACLES_WGS = [
 ]
 print('=== 全局级 OBSTACLES_WGS =', OBSTACLES_WGS)
 
+
+
+def param_get(param_id, timeout=3):
+    """返回 (value, param_type)  失败返回 (None, None)"""
+    con.mav.param_request_read_send(
+        con.target_system,
+        con.target_component,
+        param_id.encode(),
+        -1)                     # -1 表示按名字查
+    t0 = time.time()
+    while time.time() - t0 < timeout:
+        msg = con.recv_match(type='PARAM_VALUE', blocking=False)
+        if msg and msg.param_id == param_id:
+            return msg.param_value, msg.param_type
+    return None, None
+
+
+def param_set(param_id, value, param_type=mavutil.mavlink.MAV_PARAM_TYPE_REAL32):
+    """先 SET 再读回，确认生效"""
+    con.mav.param_set_send(
+        con.target_system,
+        con.target_component,
+        param_id.encode(),
+        value,
+        param_type)
+    # 等飞控回播
+    time.sleep(0.3)
+    read_back, _ = param_get(param_id)
+    if read_back is not None and abs(read_back - value) < 1e-5:
+        print(f'{param_id} 已设成 {value}')
+        return True
+    else:
+        print(f'{param_id} 写入失败（回读 {read_back}）')
+        return False
+
+
+
+
 def check_gps(gps_check=True):
     # 1. 解锁前检查
     if gps_check:
@@ -233,6 +271,15 @@ def send_obstacle(master):
 
 
 def run():
+    # 设置参数
+    params = {
+        'FRAME_CLASS': 2,   # 0=UNDEF 1=QUAD 2=HEX 3=OCTA 4=HELI 5=VTOL 6=BOAT
+        'ARMING_CHECK': 0,  # 0=跳过全部自检
+        'OA_TYPE': 2,       # Dijkstra
+    }
+    for name, val in params.items():
+        param_set(name, float(val))
+
     # 检查 GPS
     check_gps(gps_check=True)
     # 解锁飞控
@@ -240,7 +287,7 @@ def run():
     # 切换模式
     set_mode(mode_id=15)
     # 发送障碍物信息
-    # send_obstacle(con)
+    send_obstacle(con)
     time.sleep(1.0)
     # 运动
     vehicle_trajectory = [
