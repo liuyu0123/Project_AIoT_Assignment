@@ -300,7 +300,7 @@ def send_obstacle(master):
         arr,                            # 长度 72 的 list
         5,                              # increment [deg]
         0,                              # min_distance
-        500,                            # max_distance(cm)
+        3000,                           # max_distance(cm)
         5.0,                            # increment_f
         0,                              # angle_offset
         mavutil.mavlink.MAV_FRAME_BODY_FRD
@@ -345,14 +345,16 @@ def run():
 
 
 def run_new():
-    # 1. 设置参数
-    # BendyRuler 更适合处理实时的 OBSTACLE_DISTANCE 数据流进行动态避障
+    # 设置参数
     params = {
-        'FRAME_CLASS': 2,   # 2=HEX (根据您的实际载具调整)
-        'ARMING_CHECK': 0,  # 0=跳过全部自检
-        'OA_TYPE': 3,       # 避障类型
-        'AVOID_MARGIN': 2,  # 避障安全边距(米)
-        'OA_MARGIN_MAX': 5, # 最大避障边距(米)
+        'FRAME_CLASS': 2,      # 2=Boat
+        'ARMING_CHECK': 0,     # 0=跳过全部自检
+        'OA_TYPE': 1,          # 避障类型 0.Disable 1.BendyRuler 2.Dijkstra 3.BendyRuler_Dijkstra
+        'AVOID_MARGIN': 5,     # 避障安全边距(米)
+        'OA_MARGIN_MAX': 15,   # 最大避障边距(米)
+        'OA_BR_LOOKAHEAD': 30, # 预先搜索距离(米)
+        'AVOID_ENABLE': 7,     # 避障功能，7表示开启所有方向避障
+        'CRUISE_SPEED': 2.0,   # 巡航速度(米/秒)
     }
     for name, val in params.items():
         param_set(name, float(val))
