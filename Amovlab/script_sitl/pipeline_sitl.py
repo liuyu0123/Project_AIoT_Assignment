@@ -2,14 +2,13 @@ from pymavlink import mavutil
 import time, glob, math
 import numpy as np
 
-con = mavutil.mavlink_connection('udp:10.16.44.241:14551')
+con = mavutil.mavlink_connection('udp:10.16.44.241:14550')
 con.wait_heartbeat()
 print("飞控心跳正常")
 
-# 世界坐标障碍物
+# 世界坐标障碍物(lat, lon, radius_m)
 OBSTACLES_WGS = [
-    (30.2491416, 120.1524201, 4.0),   # (lat, lon, radius_m)
-    (30.2489285, 120.1520070, 4.0),
+    (30.2492144, 120.1525663, 5.0),
 ]
 print('=== 全局级 OBSTACLES_WGS =', OBSTACLES_WGS)
 
@@ -195,6 +194,48 @@ def running2position(conn, speed_ms=3, target_lat=None, target_lon=None):
     print(f"Guided → 目标点 {target_lat:.7f},{target_lon:.7f}  巡航速度 {speed_ms} m/s")
 
 
+def running2position2(conn, speed_ms=3, target_lat=None, target_lon=None):
+    """
+    修改版：只发送位置目标点，让飞控自动规划速度
+    """
+    msg = conn.recv_match(type='GLOBAL_POSITION_INT', blocking=True)
+    lat, lon = msg.lat * 1e-7, msg.lon * 1e-7
+    heading_rad = msg.hdg * 1e-2 * math.pi / 180.0
+
+    if target_lat is None or target_lon is None:
+        dN = 20 * math.cos(heading_rad)
+        dE = 20 * math.sin(heading_rad)
+        target_lat = lat + dN / 111320.0
+        target_lon = lon + dE / (111320.0 * math.cos(lat * math.pi / 180))
+
+    # 【修改部分】
+    # 位 0-2 设为 0 (使用 X, Y, Z)
+    # 位 3-5 设为 1 (忽略 VX, VY, VZ)
+    # 其余设为 1 (忽略加速度, 力, 偏航等)
+    # 正确的掩码二进制应类似: 0000 1111 1111 1000
+    
+    # 计算方式：
+    # 0b0000111111111000 (忽略除了位置以外的所有)
+    # 这里我们要确保 bit 3,4,5 是 1 (忽略速度)
+    type_mask = 0b0000111111111000
+    
+    conn.mav.set_position_target_global_int_send(
+        0,                      
+        conn.target_system,
+        conn.target_component,
+        mavutil.mavlink.MAV_FRAME_GLOBAL_INT,
+        type_mask,               
+        int(target_lat * 1e7),
+        int(target_lon * 1e7),
+        0,                       # alt
+        0,                       # vx (被忽略，填0即可)
+        0,                       # vy (被忽略)
+        0,                       # vz (被忽略)
+        0, 0, 0,                 
+        0, 0                     
+    )
+    print(f"Guided → 目标点 {target_lat:.7f},{target_lon:.7f} (仅位置控制)")
+
 
 
 def wgs_to_body(lat_ship, lon_ship, hdg_ship,
@@ -252,16 +293,15 @@ def gen_distance_array(master):
 
 def send_obstacle(master):
     arr = gen_distance_array(master)   # arr 已是 list
-    print("正在发送障碍物信息...")
-    print('sent OBSTACLE_DISTANCE:', len(arr), 'pts, min=%d max=%d cm' % (min(arr), max(arr)))
+    print('正在发送障碍物信息... OBSTACLE_DISTANCE:', len(arr), 'pts, min=%d max=%d cm' % (min(arr), max(arr)))
     master.mav.obstacle_distance_send(
         int(time.time() * 1000000),     # time_usec (μs)
         mavutil.mavlink.MAV_DISTANCE_SENSOR_LASER,
         arr,                            # 长度 72 的 list
         5,                              # increment [deg]
         0,                              # min_distance
-        30,                             # max_distance
-        0.0,                            # increment_f
+        500,                            # max_distance(cm)
+        5.0,                            # increment_f
         0,                              # angle_offset
         mavutil.mavlink.MAV_FRAME_BODY_FRD
     )
@@ -310,9 +350,9 @@ def run_new():
     params = {
         'FRAME_CLASS': 2,   # 2=HEX (根据您的实际载具调整)
         'ARMING_CHECK': 0,  # 0=跳过全部自检
-        'OA_TYPE': 3,       # 修改为 1 (BendyRuler) - 这是正确的值
-        'AVOID_MARGIN': 2,  # 避障安全边距(米)，替代之前的OA_LOOKAHEAD
-        'OA_MARGIN_MAX': 5, # 最大避障边距(米)，替代之前的OA_MARGIN
+        'OA_TYPE': 3,       # 避障类型
+        'AVOID_MARGIN': 2,  # 避障安全边距(米)
+        'OA_MARGIN_MAX': 5, # 最大避障边距(米)
     }
     for name, val in params.items():
         param_set(name, float(val))
@@ -323,7 +363,7 @@ def run_new():
     # 解锁飞控
     vehicle_arming()
     
-    # 切换模式
+    # 切换模式（Rover固件15表示GUIDED，巡航模式）
     set_mode(mode_id=15)
     
     # 稍作等待
@@ -336,22 +376,29 @@ def run_new():
         30.2485485, 120.1522163,
         30.2487524, 120.1527795
     ]
+
+    vehicle_trajectory_line = [
+        30.2497209, 120.1523852,
+        30.2487078, 120.1527473,
+    ] #障碍物（放置于两点之间）: 30.2492144, 120.1525663
     
     loop_times = 1
     
     # --- 开始循环移动 ---
     for _ in range(loop_times):
-        for i in range(0, len(vehicle_trajectory), 2):
-            target_lat = vehicle_trajectory[i]
-            target_lon = vehicle_trajectory[i+1]
+        for i in range(0, len(vehicle_trajectory_line), 2):
+            target_lat = vehicle_trajectory_line[i]
+            target_lon = vehicle_trajectory_line[i+1]
             
             # 发送目标点指令 (只发送一次，飞控会自动持续追踪)
-            running2position(con, speed_ms=3, target_lat=target_lat, target_lon=target_lon)
+            # running2position(con, speed_ms=3, target_lat=target_lat, target_lon=target_lon)
+            running2position2(con, speed_ms=3, target_lat=target_lat, target_lon=target_lon)
             
             # 关键修改：在向下一个点移动的过程中，持续发送障碍物数据
             # 假设两点之间飞行/航行时间约为 10 秒
+            navigation_time = 20
             start_time = time.time()
-            while time.time() - start_time < 10:
+            while time.time() - start_time < navigation_time:
                 # 实时计算并发送障碍物距离数组
                 send_obstacle(con)
                 
@@ -365,5 +412,5 @@ def run_new():
 
 
 if __name__ == "__main__":
-    run()
+    run_new()
 
