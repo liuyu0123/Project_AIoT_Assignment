@@ -3,6 +3,7 @@ import time, glob, math
 import numpy as np
 
 con = mavutil.mavlink_connection('udp:10.16.44.241:14550')
+# con = mavutil.mavlink_connection('udpout:127.0.0.1:14550', source_system=1, source_component=1)
 con.wait_heartbeat()
 print("飞控心跳正常")
 
@@ -132,7 +133,7 @@ def set_mode(mode_id):
         mode_id,                                    # custom_mode = AUTO(10) GUIDED(15)
         0, 0, 0, 0, 0)                         # 参数 4~7 必须填 0
 
-    print("飞控模式切换为AUTO ...")
+    print("飞控模式切换为ID=", mode_id)
     ack = con.recv_match(type='COMMAND_ACK', blocking=True, timeout=3)
     if not ack:
         print("超时：根本没收到 ACK")
@@ -222,7 +223,7 @@ def gen_distance_array(master):
         f, r = wgs_to_body(lat_s, lon_s, hdg_s, lat_o, lon_o)
         rng = math.hypot(f, r) - r_o
         if rng <= 0:               # 船已在障碍物内， clamp 1 cm
-            rng = 0.01
+            rng = 0.05          # 5 cm，至少让 BendyRuler 觉得“有缝”
         # 计算遮挡角度范围
         ang_obs = math.degrees(math.atan2(r, f)) % 360
         width   = max(10.0, math.degrees(math.atan2(r_o, rng)) * 2)
@@ -233,21 +234,24 @@ def gen_distance_array(master):
                 # 取最近距离
                 if dist_cm[i] == 65535 or d_cm < dist_cm[i]:
                     dist_cm[i] = d_cm
+                if d_cm < 1:
+                    d_cm = 1
     return list(dist_cm)
 
 def send_obstacle(master):
     arr = gen_distance_array(master)   # arr 已是 list
     print('正在发送障碍物信息... OBSTACLE_DISTANCE:', len(arr), 'pts, min=%d max=%d cm' % (min(arr), max(arr)))
+    print('[SND] OBSTACLE_DISTANCE %d beams, min=%d cm' % (len(arr), min(arr)))
     master.mav.obstacle_distance_send(
-        int(time.time() * 1000000),     # time_usec (μs)
-        mavutil.mavlink.MAV_DISTANCE_SENSOR_LASER,
-        arr,                            # 长度 72 的 list
-        5,                              # increment [deg]
-        0,                              # min_distance
-        3000,                            # max_distance(cm)
-        5.0,                            # increment_f
-        0,                              # angle_offset
-        mavutil.mavlink.MAV_FRAME_BODY_FRD
+        int(time.time() * 1_000_000),              # 0  time_usec
+        mavutil.mavlink.MAV_DISTANCE_SENSOR_LASER, # 1  sensor_type
+        arr,                                       # 2  distances[72]
+        5,                                         # 3  increment [deg]
+        0,                                         # 4  min_distance [cm]
+        3000,                                      # 5  max_distance [cm]
+        5.0,                                       # 6  increment_f
+        0,                                         # 7  angle_offset
+        mavutil.mavlink.MAV_FRAME_BODY_FRD,        # 8  frame
     )
 
 def run_auto():
@@ -255,11 +259,12 @@ def run_auto():
     params = {
         'FRAME_CLASS': 2,       # 2=Boat（Rover固件）
         'ARMING_CHECK': 0,      # 跳过自检
-        'OA_TYPE': 3,          # 3=BendyRuler+Dijkstra（全局路径规划+实时避障）
-        'AVOID_ENABLE': 7,     # 7=启用所有避障功能（关键！）
-        'AVOID_MARGIN': 10,    # 安全边距10米（触发避障的阈值）
-        'OA_MARGIN_MAX': 20,   # 最大避障边距20米
+        'OA_TYPE': 3,           # 3=BendyRuler+Dijkstra（全局路径规划+实时避障）
+        'AVOID_ENABLE': 7,      # 7=启用所有避障功能（关键！）
+        'AVOID_MARGIN': 10,     # 安全边距10米（触发避障的阈值）
+        'OA_MARGIN_MAX': 20,    # 最大避障边距20米
         'CRUISE_SPEED': 1.5,    # 巡航速度（降低速度给避障留时间）
+        'OA_BR_LOOKAHEAD': 20,
     }
     for name, val in params.items():
         param_set(name, float(val))
@@ -270,10 +275,14 @@ def run_auto():
     # 解锁飞控
     vehicle_arming()
     
-    # 切换模式为GUIDED
-    if not set_mode(15):
+    # 切换模式为MANUAL
+    if not set_mode(0):
         exit()
+    # 切换模式为GUIDED
+    # if not set_mode(15):
+    #     exit()
 
+    """
     # 航点定义 - 障碍物在起点和终点之间
     waypoints = [
         (30.2497209, 120.1523852),  # 起点
@@ -281,21 +290,16 @@ def run_auto():
     ]
     # 发送航点任务
     send_waypoints(waypoints)
+    """
     
+    # 告诉飞控航点个数
+    num_waypoints = 3
+    con.mav.mission_count_send(con.target_system, con.target_component, num_waypoints)
+    time.sleep(0.5)
+
     # 切换模式为AUTO
     if not set_mode(10):
         exit()
-
-
-    # 告诉飞控“客户端写完了”——有的 Rover 版本需要
-    # con.mav.mission_ack_send(
-    #     con.target_system,
-    #     con.target_component,
-    #     mavutil.mavlink.MAV_MISSION_ACCEPTED)
-    # time.sleep(0.5)
-
-
-
 
     # 稍作等待
     time.sleep(1.0)
@@ -304,6 +308,8 @@ def run_auto():
     while True:
         send_obstacle(con)
         time.sleep(0.1)  # 10Hz发送频率
+
+    # @TODO 等待航行结束，切换为LOITER或HOLD模式
 
 if __name__ == "__main__":
     run_auto()
