@@ -118,7 +118,7 @@ def vehicle_arming():
             print(f"{time.time()-t0:.2f}s  {txt}")
         time.sleep(0.05)
 
-def set_mode_auto():
+def set_mode(mode_id):
     """
     Rover 切 AUTO 的标准做法：只给 base_mode 打 CUSTOM_MODE 标志，
     custom_mode 写 10，其余全 0。
@@ -129,7 +129,7 @@ def set_mode_auto():
         mavutil.mavlink.MAV_CMD_DO_SET_MODE,
         0,                                     # confirmation
         mavutil.mavlink.MAV_MODE_FLAG_CUSTOM_MODE_ENABLED,  # base_mode
-        10,                                    # custom_mode = AUTO
+        mode_id,                                    # custom_mode = AUTO(10) GUIDED(15)
         0, 0, 0, 0, 0)                         # 参数 4~7 必须填 0
 
     print("飞控模式切换为AUTO ...")
@@ -270,8 +270,8 @@ def run_auto():
     # 解锁飞控
     vehicle_arming()
     
-    # 切换模式为AUTO
-    if not set_mode_auto():
+    # 切换模式为GUIDED
+    if not set_mode(15):
         exit()
 
     # 航点定义 - 障碍物在起点和终点之间
@@ -279,9 +279,12 @@ def run_auto():
         (30.2497209, 120.1523852),  # 起点
         (30.2487078, 120.1527473),  # 终点（障碍物在中间）
     ]
-    
     # 发送航点任务
     send_waypoints(waypoints)
+    
+    # 切换模式为AUTO
+    if not set_mode(10):
+        exit()
 
 
     # 告诉飞控“客户端写完了”——有的 Rover 版本需要
