@@ -4,8 +4,10 @@ import cv2
 
 
 # filename = r'D:\AIoT\HuatengVision\calibrate_camera_bino\stereoParams14cm.json'
-filename = r"D:\Files\Data\ImageStereo\Data3\calib\stereoParams.json"
-size = (1024, 768)  # You can adjust this based on your needs
+# filename = r"D:\Files\Data\StereoCamera\ImageStereo\Calib\Data3\calib\stereoParams.json"
+filename = r"D:\Files\Data\StereoCamera\ImageStereo\Calib\Data4To6\stereoParams_512pixel.json"
+# size = (1024, 768)  # You can adjust this based on your needs
+size = (512, 384)  # You can adjust this based on your needs
 CamConf = dict()
 CamConf['size'] = size
 

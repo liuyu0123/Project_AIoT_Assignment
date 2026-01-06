@@ -9,8 +9,8 @@ import pdb
 # parent_path = r'D:\AIoT\HuatengVision\SGBM\test1'
 # left_image = cv2.imread(parent_path+"\\left_003.png")
 # right_image = cv2.imread(parent_path+"\\right_003.png")
-left_path = r"D:\Files\Data\ImageStereo\Data3\test\left\001.png"
-right_path = r"D:\Files\Data\ImageStereo\Data3\test\right\001.png"
+left_path = r"D:\Files\Data\StereoCamera\ImageStereo\Calib\Data3\test\left\001.png"
+right_path = r"D:\Files\Data\StereoCamera\ImageStereo\Calib\Data3\test\right\001.png"
 left_image = cv2.imread(left_path)
 right_image = cv2.imread(right_path)
 if left_image is None or right_image is None:

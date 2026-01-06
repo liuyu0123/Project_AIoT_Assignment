@@ -8,7 +8,7 @@ IF_STEREO = True # 是否为双目拼接照片
 print(camera_configs.CamConf['size'])
 
 if IF_STEREO:
-    stereo_image_path = r"D:\Files\Data\ImageStereo\RiverImage\1000\sync_20251227_122320_272.png"
+    stereo_image_path = r"D:\Files\Data\StereoCamera\ImageStereo\Calib\Data4To6\test\sync_20260106_223511_327.png"
     stereo_image = cv2.imread(stereo_image_path)
     img_left = stereo_image[0:camera_configs.CamConf['size'][1], 0:camera_configs.CamConf['size'][0]]
     img_right = stereo_image[0:camera_configs.CamConf['size'][1], camera_configs.CamConf['size'][0]:camera_configs.CamConf['size'][0]*2]
