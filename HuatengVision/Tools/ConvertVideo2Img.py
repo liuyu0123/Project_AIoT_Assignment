@@ -8,7 +8,7 @@ import os
 import sys
 from pathlib import Path
 
-# ========== 只用改这里 ==========
+# ========== 只用改这里 (注意路径不要有中文！) ==========
 VIDEO_PATH   = "/home/pi/GitProject/LIUYU/HuatengVision/capture_video/stereo_videos/stereo_20260106_111942.mp4"  # 你的视频
 OUTPUT_DIR   = "/home/pi/GitProject/LIUYU/HuatengVision/capture_video/stereo_videos_split"                       # 输出根目录
 video_name = Path(VIDEO_PATH).stem          # 得到视频名称
