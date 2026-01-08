@@ -14,7 +14,7 @@ import sys
 
 # ---------- 参数 ----------
 OUT_DIR      = "stereo_videos"
-EXP_US       = 1500          # 30 ms
+EXP_US       = 300          # 30 ms
 GAIN_DB      = 12
 FRAME_SPEED  = 2             # 2=120 fps
 SYNC_TH_MS   = 100           # 同步阈值
@@ -93,6 +93,7 @@ def main():
     print("左右相机已打开，按 Ctrl-C 停止录制")
 
     frames = []                      # [(frmL, frmR, t), ...]
+    timestamp_start = datetime.datetime.now()
     while not stop_flag:
         frmL, tL = sdk_grab_frame(hcamL, bufL, shape)
         frmR, tR = sdk_grab_frame(hcamR, bufR, shape)
@@ -101,6 +102,11 @@ def main():
         if abs(tL - tR) > SYNC_TH_MS * 0.001:
             continue
         frames.append((frmL.copy(), frmR.copy(), tL))   # 把左相机时间戳存下来
+        timestamp_end = datetime.datetime.now()
+        print(f"已经录像：{(timestamp_end - timestamp_start).total_seconds()} 秒")
+        if (timestamp_end - timestamp_start).total_seconds() >= 20: #秒
+            print("记录时间达到最大值，录像结束...")
+            break
 
     print('\n采集环已退出，等待 SDK 释放流...')
     time.sleep(0.2)
@@ -112,7 +118,7 @@ def main():
         print(f'实际时长 {duration:.2f}s，平均帧率 {avg_fps:.2f} fps')
 
         ts = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-        out_path = os.path.join(OUT_DIR, f"stereo_{ts}.mp4")
+        out_path = os.path.join(OUT_DIR, f"stereo_{ts}_expose{EXP_US}.mp4")
         fourcc = cv2.VideoWriter_fourcc(*'mp4v')
         h, w = frames[0][0].shape[:2]
         writer = cv2.VideoWriter(out_path, fourcc, avg_fps, (w * 2, h))
