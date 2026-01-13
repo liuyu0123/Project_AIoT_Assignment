@@ -78,4 +78,4 @@ if __name__ == '__main__':
     print('Translation Vector T:\n', T)
     print('Baseline b: ', b)
     print('Focal Length f: ', f)
-    print('Principal Point (cx, cy): ', cx, cy)W
+    print('Principal Point (cx, cy): ', cx, cy)
