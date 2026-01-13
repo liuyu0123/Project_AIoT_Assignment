@@ -14,7 +14,7 @@ import platform
 LEFT_CAM_IDX = 1
 RIGHT_CAM_IDX = 0
 # >>> 以下参数与标定脚本保持一致，按需微调 <<<
-EXP_US      = 5000         # 30 ms 曝光
+EXP_US      = 300         # 30 ms 曝光
 ANALOG_GAIN = 12            # 12 dB 模拟增益
 FRAME_SPEED = 2             # 0=低速 1=普通 2=高速
 RES_W, RES_H = 800, 600    # 目标分辨率
@@ -115,7 +115,7 @@ def main():
 
     # 横向拼接
     stitched = cv2.hconcat([imgL, imgR])
-    fname = f"{OUT_DIR}/{tL.strftime('%Y%m%d_%H%M%S_%f')[:-3]}.png"
+    fname = f"{OUT_DIR}/{tL.strftime('%Y%m%d_%H%M%S_%f')[:-3]}_expose{EXP_US}.png"
     cv2.imwrite(fname, stitched)
     print(f"已保存拼接图：{fname}  分辨率={stitched.shape[1]}x{stitched.shape[0]}")
 
