@@ -1,5 +1,5 @@
 # stereo_disparity/config/sgbm_params.yaml
-stereo_disparity_node:
+stereo_disparity:
   ros__parameters:
     # SGBM 参数
     minDisparity: 0

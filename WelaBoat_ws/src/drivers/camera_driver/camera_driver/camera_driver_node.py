@@ -31,8 +31,8 @@ from .huateng_vision_sdk.mvsdk import CameraException
 11: 512X384 SKIP4X4
 12: 320X240 SKIP4X4
 """
-LEFT_CAM_IDX = 0
-RIGHT_CAM_IDX = 1
+LEFT_CAM_IDX = 1
+RIGHT_CAM_IDX = 0
 EXP_US = 15000
 ANALOG_GAIN = 12
 FRAME_SPEED = 2
