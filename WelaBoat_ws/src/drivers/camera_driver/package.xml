@@ -6,6 +6,7 @@
   <description>TODO: Package description</description>
   <maintainer email="liuyu0123@outlook.com">riba</maintainer>
   <license>Apache-2.0</license>
+  <exec_depend>ament_index_python</exec_depend>
 
   <depend>rclpy</depend>
 

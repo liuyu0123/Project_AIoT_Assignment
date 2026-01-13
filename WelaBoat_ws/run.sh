@@ -4,5 +4,8 @@ source install/setup.bash
 ros2 run camera_driver camera_driver
 # 启动相机预览节点
 ros2 run camera_driver camera_viewer /camera/left/image_raw
+ros2 run camera_driver camera_viewer /camera/left/image_rect
+# 启动相机校正节点
+ros2 run camera_driver camera_rectified
 
 
