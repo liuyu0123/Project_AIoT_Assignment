@@ -8,4 +8,8 @@ ros2 run camera_driver camera_viewer /camera/left/image_rect
 # 启动相机校正节点
 ros2 run camera_driver camera_rectified
 
+# 启动双目视差节点
+ros2 run stereo_disparity stereo_disparity --ros-args --params-file install/stereo_disparity/share/stereo_disparity/config/sgbm_params.yaml
+# 使用launch脚本启动节点
+ros2 launch stereo_disparity disparity.launch.py
 
