@@ -14,6 +14,18 @@ ros2 run stereo_disparity stereo_disparity --ros-args --params-file install/ster
 # 使用launch脚本启动节点
 ros2 launch stereo_disparity disparity.launch.py
 
+# 启动单目yolo节点
+ros2 run yolov5_detector yolov5_detector_node --ros-args -p \
+  model_path:=/home/riba/Project/AIoT_Gitee/WelaBoat_ws/src/perception/yolov5_detector/model/yolov5s.pt
+# 启动conda环境版本
+ros2 launch yolov5_detector yolov5.launch.py \
+  model_path:=/home/riba/Project/AIoT_Gitee/WelaBoat_ws/src/perception/yolov5_detector/model/yolov5s.pt
+# 指定 Conda 环境和输入话题
+ros2 launch yolov5_detector yolov5.launch.py \
+  model_path:=/home/riba/Project/AIoT_Gitee/WelaBoat_ws/src/perception/yolov5_detector/model/yolov5s.pt \
+  conda_env:=yolov5_env \
+  input_topic:=/camera/left/image_rect
+ros2 launch yolov5_detector yolov5_test1.launch.py
 
 # 一键启动整个链路
 ros2 launch welaboat_bringup welaboat.launch.py
