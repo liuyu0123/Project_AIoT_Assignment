@@ -46,9 +46,31 @@ def generate_launch_description():
         output='screen'
     )
 
+    # fastscnn语义分割
+    fastscnn_segmenter_citys = Node(
+        package='fastscnn_segmenter',
+        executable='fastscnn_segmenter_node',
+        name='fastscnn_segmenter_node',
+        parameters=[{'model_path': '/home/riba/Fast-SCNN-pytorch/weights/fast_scnn_citys.pth',
+                     'input_topic': '/camera/left/image_rect',
+                     'num_classes': 19}],
+        output='screen'
+    )
+    fastscnn_segmenter_water = Node(
+        package='fastscnn_segmenter',
+        executable='fastscnn_segmenter_node',
+        name='fastscnn_segmenter_node',
+        parameters=[{'model_path': '/home/riba/Fast-SCNN-pytorch/weights/fast_scnn_water.pth',
+                     'input_topic': '/camera/left/image_rect',
+                     'num_classes': 2}],
+        output='screen'
+    )
+
     return LaunchDescription([
         camera_driver,
         camera_rectify,
         stereo_disparity,
         yolov5_detector,
+        # fastscnn_segmenter_citys,
+        fastscnn_segmenter_water,
     ])

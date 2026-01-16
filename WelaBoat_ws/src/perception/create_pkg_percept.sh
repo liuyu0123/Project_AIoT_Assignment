@@ -8,7 +8,10 @@ ros2 pkg create yolov5_detector \
   --license Apache-2.0
 
 # fastscnn语义分割
-fastscnn_segmenter
+ros2 pkg create fastscnn_segmenter \
+  --build-type ament_python \
+  --dependencies rclpy sensor_msgs cv_bridge std_msgs vision_msgs \
+  --license Apache-2.0
 
 # 激光雷达
 lidar_processor
