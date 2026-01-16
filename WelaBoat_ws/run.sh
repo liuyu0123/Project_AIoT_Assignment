@@ -13,6 +13,7 @@ ros2 run camera_driver camera_driver
 ros2 run camera_driver camera_viewer /camera/left/image_raw
 ros2 run camera_driver camera_viewer /camera/left/image_rect
 ros2 run camera_driver camera_viewer /stereo/disparity_color  #预览视差图
+ros2 run camera_driver camera_viewer /yolov5/detections_image  #预览yolov5检测结果
 # 启动相机校正节点
 ros2 run camera_driver camera_rectified
 
@@ -24,6 +25,14 @@ ros2 launch stereo_disparity disparity.launch.py
 # 启动单目yolo节点
 ros2 run yolov5_detector yolov5_detector_node --ros-args -p \
   model_path:=/home/riba/GitProject/LIUYU/WelaBoat_ws/src/perception/yolov5_detector/model/yolov5s.pt
+
+ros2 run yolov5_detector yolov5_detector_node \
+  --ros-args \
+  -p model_path:=/home/riba/your_model.pt \
+  -p input_topic:=/camera/left/image_rect \
+  -p output_topic:=/yolov5/detections_image \
+  -p conf_thres:=0.5
+
 # 启动conda环境版本
 ros2 launch yolov5_detector yolov5.launch.py \
   model_path:=/home/riba/GitProject/AIoT_Gitee/WelaBoat_ws/src/perception/yolov5_detector/model/yolov5s.pt
