@@ -9,14 +9,17 @@ import numpy as np
 import os
 import sys
 
-# 添加 yolov5 路径（其实相对导入已足够，但保险起见）
-FILE = os.path.dirname(os.path.abspath(__file__))
-if FILE not in sys.path:
-    sys.path.insert(0, FILE)
 
-from .yolov5.models.common import DetectMultiBackend
-from .yolov5.utils.general import non_max_suppression, scale_boxes
-from .yolov5.utils.augmentations import letterbox
+# 添加 YOLOv5 路径到 Python 搜索路径
+YOLOV5_PATH = os.path.expanduser("~/yolov5")
+if YOLOV5_PATH not in sys.path:
+    sys.path.insert(0, YOLOV5_PATH)
+
+# 现在可以正常导入 YOLOv5 模块
+from utils.augmentations import letterbox
+from utils.general import non_max_suppression, scale_boxes
+from models.common import DetectMultiBackend
+from utils import TryExcept
 
 
 class YoloV5DetectorNode(Node):
