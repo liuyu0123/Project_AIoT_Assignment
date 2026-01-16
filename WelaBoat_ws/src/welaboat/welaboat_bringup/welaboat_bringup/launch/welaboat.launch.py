@@ -37,8 +37,18 @@ def generate_launch_description():
         output='screen'
     )
 
+    # yolov5目标检测
+    yolov5_detector = Node(
+        package='yolov5_detector',
+        executable='yolov5_detector_node',
+        name='yolov5_detector_node',
+        parameters=[{'model_path': '/home/riba/GitProject/LIUYU/WelaBoat_ws/src/perception/yolov5_detector/model/yolov5s.pt'}],
+        output='screen'
+    )
+
     return LaunchDescription([
         camera_driver,
         camera_rectify,
         stereo_disparity,
+        yolov5_detector,
     ])
