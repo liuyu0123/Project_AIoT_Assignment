@@ -14,6 +14,7 @@ ros2 run camera_driver camera_viewer /camera/left/image_raw
 ros2 run camera_driver camera_viewer /camera/left/image_rect
 ros2 run camera_driver camera_viewer /stereo/disparity_color  #预览视差图
 ros2 run camera_driver camera_viewer /yolov5/detections_image  #预览yolov5检测结果
+ros2 run camera_driver camera_viewer /fastscnn/segmentation_color  #预览fastscnn语义分割结果
 # 启动相机校正节点
 ros2 run camera_driver camera_rectified
 
@@ -45,6 +46,21 @@ ros2 launch yolov5_detector yolov5.launch.py \
 ros2 launch yolov5_detector yolov5_test1.launch.py
 
 ros2 launch yolov5_detector yolov5_test2.launch.py
+
+
+
+# 启动fastscnn语义分割节点
+ros2 run fastscnn_segmenter fastscnn_segmenter_node \
+  --ros-args \
+  -p model_path:=/home/riba/Fast-SCNN-pytorch/weights_copy/fast_scnn_citys.pth \
+  -p input_topic:=/camera/left/image_rect \
+  -p num_classes:=19
+
+ros2 run fastscnn_segmenter fastscnn_segmenter_node \
+  --ros-args \
+  -p model_path:=/home/riba/Fast-SCNN-pytorch/weights_copy/fast_scnn_water.pth \
+  -p input_topic:=/camera/left/image_rect \
+  -p num_classes:=2
 
 
 # 一键启动整个链路

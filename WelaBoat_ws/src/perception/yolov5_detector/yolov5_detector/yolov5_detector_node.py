@@ -109,7 +109,7 @@ class YoloV5DetectorNode(Node):
                     cv2.putText(det_img, label, (x1, y1 - 10),
                                 cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
 
-                    self.get_logger().info(f'Detected: {label} at ({x1},{y1})-({x2},{y2})')
+                    # self.get_logger().info(f'Detected: {label} at ({x1},{y1})-({x2},{y2})')
 
             # 发布结果图像
             out_msg = self.bridge.cv2_to_imgmsg(det_img, encoding="bgr8")
