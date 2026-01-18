@@ -1,0 +1,23 @@
+Syntax is: pcl_viewer <file_name 1..N>.pcd <options>
+  where options are:
+                     -bc r,g,b                = background color
+                     -fc r,g,b                = foreground color
+                     -ps X                    = point size (1..64)
+                     -opaque X                = rendered point cloud opacity (0..1)
+                     -ax n                    = enable on-screen display of XYZ axes and scale them to n
+                     -ax_pos X,Y,Z            = if axes are enabled, set their X,Y,Z position in space (default 0,0,0)
+
+                     -cam (*)                 = use given camera settings as initial view
+ (*) [Clipping Range / Focal Point / Position / ViewUp / Distance / Window Size / Window Pos] or use a <filename.cam> that contains the same information.
+
+                     -multiview 0/1           = enable/disable auto-multi viewport rendering (default disabled)
+
+
+                     -normals 0/X             = disable/enable the display of every Xth point's surface normal as lines (default disabled)
+                     -normals_scale X         = resize the normal unit vector size to X (default 0.02)
+
+                     -pc 0/X                  = disable/enable the display of every Xth point's principal curvatures as lines (default disabled)
+                     -pc_scale X              = resize the principal curvatures vectors size to X (default 0.02)
+
+
+(Note: for multiple .pcd files, provide multiple -{fc,ps} parameters; they will be automatically assigned to the right file)
