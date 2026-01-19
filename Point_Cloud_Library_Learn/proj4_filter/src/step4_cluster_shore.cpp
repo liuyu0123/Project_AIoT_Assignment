@@ -1,4 +1,4 @@
-// src/step4_cluster_shore.cpp
+// src/step4_cluster_shore_labeled.cpp
 #include <iostream>
 #include <vector>
 #include <pcl/io/pcd_io.h>
@@ -11,53 +11,63 @@ int main(int argc, char** argv)
     if (argc != 3)
     {
         std::cerr << "Usage: " << argv[0] 
-                  << " <input_shore.pcd> <output_clusters.pcd>" << std::endl;
+                  << " <input_shore.pcd> <output_labeled.pcd>" << std::endl;
         return -1;
     }
 
-    using PointT = pcl::PointXYZ;
-    using PointCloudT = pcl::PointCloud<PointT>;
-
-    // 1. 加载岸上点云
-    PointCloudT::Ptr cloud(new PointCloudT);
-    if (pcl::io::loadPCDFile<PointT>(argv[1], *cloud) == -1)
+    // 输入：普通点云
+    pcl::PointCloud<pcl::PointXYZ>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZ>);
+    if (pcl::io::loadPCDFile<pcl::PointXYZ>(argv[1], *cloud) == -1)
     {
         std::cerr << "Error: Could not read file " << argv[1] << std::endl;
         return -1;
     }
-    std::cout << "Loaded " << cloud->size() << " shore points." << std::endl;
 
-    // 2. 创建 KD-Tree 用于邻域搜索
-    pcl::search::KdTree<PointT>::Ptr tree(new pcl::search::KdTree<PointT>);
+    // 创建 KD-Tree
+    pcl::search::KdTree<pcl::PointXYZ>::Ptr tree(new pcl::search::KdTree<pcl::PointXYZ>);
     tree->setInputCloud(cloud);
 
-    // 3. 欧氏聚类
+    // 聚类
     std::vector<pcl::PointIndices> cluster_indices;
-    pcl::EuclideanClusterExtraction<PointT> ec;
-    ec.setClusterTolerance(0.5);    // 点间距 < 0.5 米视为同一簇
-    ec.setMinClusterSize(5);       // 至少 50 个点（防小噪点）
-    ec.setMaxClusterSize(1000000);  // 上限很大，不限制大簇
+    pcl::EuclideanClusterExtraction<pcl::PointXYZ> ec;
+    ec.setClusterTolerance(2.0f);
+    ec.setMinClusterSize(50);
+    ec.setMaxClusterSize(1000000);
     ec.setSearchMethod(tree);
     ec.setInputCloud(cloud);
     ec.extract(cluster_indices);
 
     std::cout << "Found " << cluster_indices.size() << " clusters." << std::endl;
 
-    // 4. 合并所有有效簇（这里保留所有，你也可只取前 N 个大簇）
-    PointCloudT::Ptr clustered_cloud(new PointCloudT);
-    for (const auto& indices : cluster_indices)
+    // === 关键：创建带 label 的点云 ===
+    pcl::PointCloud<pcl::PointXYZL>::Ptr labeled_cloud(new pcl::PointCloud<pcl::PointXYZL>);
+    labeled_cloud->header = cloud->header; // 保留时间戳等
+    labeled_cloud->points.resize(cloud->size());
+    labeled_cloud->width = cloud->size();
+    labeled_cloud->height = 1;
+    labeled_cloud->is_dense = false;
+
+    // 初始化所有点 label = 0（或 -1，但 PCD 不支持负 label）
+    for (auto& pt : labeled_cloud->points) {
+        pt.label = 0; // 默认类别
+    }
+
+    // 给每个簇分配唯一 label（从 1 开始）
+    for (size_t i = 0; i < cluster_indices.size(); ++i)
     {
-        for (int idx : indices.indices)
+        uint32_t label = static_cast<uint32_t>(i + 1); // label 从 1 开始
+        for (int idx : cluster_indices[i].indices)
         {
-            clustered_cloud->push_back((*cloud)[idx]);
+            labeled_cloud->points[idx].x = (*cloud)[idx].x;
+            labeled_cloud->points[idx].y = (*cloud)[idx].y;
+            labeled_cloud->points[idx].z = (*cloud)[idx].z;
+            labeled_cloud->points[idx].label = label;
         }
     }
 
-    // 5. 保存结果
-    // pcl::io::savePCDFileBinary(argv[2], *clustered_cloud);
-    pcl::io::savePCDFileASCII(argv[2], *clustered_cloud); // ← ASCII 格式
-    std::cout << "Saved " << clustered_cloud->size() 
-              << " points in " << cluster_indices.size() << " clusters to " << argv[2] << std::endl;
+    // 保存为 PCD（ASCII 更兼容）
+    pcl::io::savePCDFileASCII(argv[2], *labeled_cloud);
+    std::cout << "Saved labeled point cloud to " << argv[2] << std::endl;
 
     return 0;
 }
