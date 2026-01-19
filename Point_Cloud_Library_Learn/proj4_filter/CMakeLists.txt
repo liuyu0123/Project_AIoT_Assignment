@@ -9,6 +9,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # 查找 PCL 库（必需）
 find_package(PCL 1.8 REQUIRED COMPONENTS common io filters segmentation)
 find_package(OpenCV REQUIRED) # 添加 OpenCV 库, step8_generate_occupancy_grid需要
+# find_package(Eigen3 REQUIRED)  # PCL中已经包含了Eigen3
 
 # 打印找到的路径（调试用）
 message(STATUS "OpenCV include dirs: ${OpenCV_INCLUDE_DIRS}")

@@ -54,7 +54,7 @@ pcd_right_line=/home/riba/GitProject/LIUYU/Point_Cloud_Library_Learn/data/step6_
 # 沿 X 轴航行（你的场景）
 # 方法1（kimi）可运行
 # ./step6_extract_centerlines $pcd_projected $pcd_left_line $pcd_right_line --axis x
-# 方法2（阿里千问）
+# 方法2（K-means方法）可行（kimi优化）
 ./step6_extract_centerlines2 $pcd_projected $pcd_left_line $pcd_right_line
 # 如果以后需要沿 Y 轴（可选）
 # ./step6_extract_centerlines $pcd_projected $pcd_left_line $pcd_right_line --axis y
