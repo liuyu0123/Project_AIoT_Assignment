@@ -8,6 +8,11 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # 查找 PCL 库（必需）
 find_package(PCL 1.8 REQUIRED COMPONENTS common io filters segmentation)
+find_package(OpenCV REQUIRED) # 添加 OpenCV 库, step8_generate_occupancy_grid需要
+
+# 打印找到的路径（调试用）
+message(STATUS "OpenCV include dirs: ${OpenCV_INCLUDE_DIRS}")
+message(STATUS "OpenCV libraries: ${OpenCV_LIBS}")
 
 # 包含 PCL 头文件目录
 include_directories(${PCL_INCLUDE_DIRS})
@@ -23,6 +28,7 @@ add_executable(step5_project_2d src/step5_project_2d.cpp)
 add_executable(step6_extract_centerlines src/step6_extract_centerlines.cpp)
 add_executable(step6_extract_centerlines2 src/step6_extract_centerlines_qwen.cpp)
 add_executable(step7_interpolate_shores src/step7_interpolate_shores.cpp)
+add_executable(step8_generate_occupancy_grid src/step8_generate_occupancy_grid.cpp)
 
 # 链接 PCL 库
 target_link_libraries(step2_denoise ${PCL_LIBRARIES})
@@ -32,3 +38,4 @@ target_link_libraries(step5_project_2d ${PCL_LIBRARIES})
 target_link_libraries(step6_extract_centerlines ${PCL_LIBRARIES})
 target_link_libraries(step6_extract_centerlines2 ${PCL_LIBRARIES})
 target_link_libraries(step7_interpolate_shores ${PCL_LIBRARIES})
+target_link_libraries(step8_generate_occupancy_grid ${PCL_LIBRARIES} ${OpenCV_LIBS})
