@@ -16,7 +16,7 @@ include_directories(${PCL_INCLUDE_DIRS})
 add_definitions(${PCL_DEFINITIONS})
 
 # 添加可执行文件
-add_executable(step2_denoise src/pcl_filter.cpp)
+add_executable(step2_denoise src/step2_denoise.cpp)
 
 # 链接 PCL 库
 target_link_libraries(step2_denoise ${PCL_LIBRARIES})
