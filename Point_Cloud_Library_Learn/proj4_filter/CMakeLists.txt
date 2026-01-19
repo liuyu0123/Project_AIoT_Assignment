@@ -21,6 +21,7 @@ add_executable(step3_segment_water src/step3_segment_water.cpp)
 add_executable(step4_cluster_shore src/step4_cluster_shore.cpp)
 add_executable(step5_project_2d src/step5_project_2d.cpp)
 add_executable(step6_extract_centerlines src/step6_extract_centerlines.cpp)
+add_executable(step6_extract_centerlines2 src/step6_extract_centerlines_qwen.cpp)
 
 # 链接 PCL 库
 target_link_libraries(step2_denoise ${PCL_LIBRARIES})
@@ -28,3 +29,4 @@ target_link_libraries(step3_segment_water ${PCL_LIBRARIES})
 target_link_libraries(step4_cluster_shore ${PCL_LIBRARIES})
 target_link_libraries(step5_project_2d ${PCL_LIBRARIES})
 target_link_libraries(step6_extract_centerlines ${PCL_LIBRARIES})
+target_link_libraries(step6_extract_centerlines2 ${PCL_LIBRARIES})

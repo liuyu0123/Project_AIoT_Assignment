@@ -49,7 +49,7 @@ pcd_projected=/home/riba/GitProject/LIUYU/Point_Cloud_Library_Learn/data/step5_p
 pcd_left_line=/home/riba/GitProject/LIUYU/Point_Cloud_Library_Learn/data/step6_left_shore_line.pcd
 pcd_right_line=/home/riba/GitProject/LIUYU/Point_Cloud_Library_Learn/data/step6_right_shore_line.pcd
 # 沿 X 轴航行（你的场景）
-./step6_extract_centerlines $pcd_projected $pcd_left_line $pcd_right_line --axis x
+./step6_extract_centerlines2 $pcd_projected $pcd_left_line $pcd_right_line --axis x
 # 如果以后需要沿 Y 轴（可选）
 # ./step6_extract_centerlines $pcd_projected $pcd_left_line $pcd_right_line --axis y
 # pcl_viewer step6_left_shore_line.pcd -fc 255,0,0 -ps 8 step6_right_shore_line.pcd -fc 0,255,0 -ps 8
