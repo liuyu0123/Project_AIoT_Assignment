@@ -38,3 +38,8 @@ pcd_clusters=/home/riba/GitProject/LIUYU/Point_Cloud_Library_Learn/data/step4_sh
 
 # 可视化
 # CloudCompare step4_shore_clusters.pcd
+# 在CloudCompare中手动将pcd拖入
+
+# 点云投影到2D平面
+pcd_projected=/home/riba/GitProject/LIUYU/Point_Cloud_Library_Learn/data/step5_projected.pcd
+./step5_project_2d $pcd_clusters $pcd_projected
