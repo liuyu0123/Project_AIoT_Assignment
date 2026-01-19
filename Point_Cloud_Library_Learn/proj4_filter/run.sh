@@ -53,3 +53,9 @@ pcd_right_line=/home/riba/GitProject/LIUYU/Point_Cloud_Library_Learn/data/step6_
 # 如果以后需要沿 Y 轴（可选）
 # ./step6_extract_centerlines $pcd_projected $pcd_left_line $pcd_right_line --axis y
 # pcl_viewer step6_left_shore_line.pcd -fc 255,0,0 -ps 8 step6_right_shore_line.pcd -fc 0,255,0 -ps 8
+
+
+# 插值补齐河岸线
+interpolate_output_path=/home/riba/GitProject/LIUYU/Point_Cloud_Library_Learn/data/
+./step7_interpolate_shores $pcd_left_line $pcd_right_line $interpolate_output_path
+# pcl_viewer left_interp.pcd -fc 255,0,0 -ps 8 right_interp.pcd -fc 0,255,0 -ps 8

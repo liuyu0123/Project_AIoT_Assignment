@@ -22,6 +22,7 @@ add_executable(step4_cluster_shore src/step4_cluster_shore.cpp)
 add_executable(step5_project_2d src/step5_project_2d.cpp)
 add_executable(step6_extract_centerlines src/step6_extract_centerlines.cpp)
 add_executable(step6_extract_centerlines2 src/step6_extract_centerlines_qwen.cpp)
+add_executable(step7_interpolate_shores src/step7_interpolate_shores.cpp)
 
 # 链接 PCL 库
 target_link_libraries(step2_denoise ${PCL_LIBRARIES})
@@ -30,3 +31,4 @@ target_link_libraries(step4_cluster_shore ${PCL_LIBRARIES})
 target_link_libraries(step5_project_2d ${PCL_LIBRARIES})
 target_link_libraries(step6_extract_centerlines ${PCL_LIBRARIES})
 target_link_libraries(step6_extract_centerlines2 ${PCL_LIBRARIES})
+target_link_libraries(step7_interpolate_shores ${PCL_LIBRARIES})
