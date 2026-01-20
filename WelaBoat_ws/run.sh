@@ -63,5 +63,12 @@ ros2 run fastscnn_segmenter fastscnn_segmenter_node \
   -p num_classes:=2
 
 
+
+# 查看点云质量
+rviz2 -d src/drivers/unitree_lidar_ros2/rviz/view.rviz 
+
+
+
+
 # 一键启动整个链路
 ros2 launch welaboat_bringup welaboat.launch.py
