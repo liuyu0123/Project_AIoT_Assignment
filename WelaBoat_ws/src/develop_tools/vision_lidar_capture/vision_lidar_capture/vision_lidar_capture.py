@@ -18,6 +18,7 @@ import select
 class SyncCapture(Node):
     def __init__(self):
         super().__init__('sync_capture')
+        self.quit_flag = False   # 退出标志
 
         # 1. 保存根目录 <ws>/data
         ws_root = self.find_workspace_root()
@@ -75,15 +76,13 @@ class SyncCapture(Node):
 
     # ---------------- 键盘 ----------------
     def keyboard_thread(self):
-        while rclpy.ok():
-            ch = self.getchar(timeout=0.2)   # 非阻塞，超时200ms
-            if ch is None:                   # 超时，继续循环
-                continue
+        while rclpy.ok() and not self.quit_flag:
+            ch = self.getchar(timeout=0.2)
             if ch == 's':
                 self.save_once()
             elif ch == 'q':
                 self.get_logger().info('User quit.')
-                rclpy.shutdown()
+                self.quit_flag = True   # 仅置位
                 break
 
     # @staticmethod
@@ -169,7 +168,8 @@ def main():
     rclpy.init()
     node = SyncCapture()
     try:
-        rclpy.spin(node)
+        while rclpy.ok() and not node.quit_flag:   # 新增条件
+            rclpy.spin_once(node, timeout_sec=0.1)
     except KeyboardInterrupt:
         pass
     node.destroy_node()
