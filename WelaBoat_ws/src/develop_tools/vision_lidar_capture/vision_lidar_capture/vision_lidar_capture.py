@@ -12,6 +12,7 @@ import sys
 import termios
 import tty
 from ament_index_python.packages import get_package_share_directory
+import select
 
 
 class SyncCapture(Node):
@@ -85,7 +86,21 @@ class SyncCapture(Node):
                 rclpy.shutdown()
                 break
 
-    @staticmethod
+    # @staticmethod
+    # def getchar(self, timeout=0.2):
+    #     """非阻塞读字符；超时返回 None"""
+    #     fd = sys.stdin.fileno()
+    #     old = termios.tcgetattr(fd)
+    #     ch = None
+    #     try:
+    #         tty.setraw(fd)
+    #         # 用 select 给 stdin 设超时
+    #         if select.select([sys.stdin], [], [], timeout)[0]:
+    #             ch = sys.stdin.read(1)
+    #     finally:
+    #         termios.tcsetattr(fd, termios.TCSADRAIN, old)
+    #     return ch
+
     def getchar(self, timeout=0.2):
         """非阻塞读字符；超时返回 None"""
         fd = sys.stdin.fileno()
@@ -93,7 +108,6 @@ class SyncCapture(Node):
         ch = None
         try:
             tty.setraw(fd)
-            # 用 select 给 stdin 设超时
             if select.select([sys.stdin], [], [], timeout)[0]:
                 ch = sys.stdin.read(1)
         finally:
