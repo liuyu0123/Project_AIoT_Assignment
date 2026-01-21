@@ -42,7 +42,8 @@ class SyncCapture(Node):
         # 4. 订阅
         self.create_subscription(Image,      '/camera/left/image_raw',  self.cb_img_left,  1)
         self.create_subscription(Image,      '/camera/right/image_raw', self.cb_img_right, 1)
-        self.create_subscription(PointCloud2,'/unilidar/cloud',         self.cb_lidar,     1)
+        # self.create_subscription(PointCloud2,'/unilidar/cloud',         self.cb_lidar,     1)
+        self.create_subscription(PointCloud2,'/unilidar/cloud_multi',         self.cb_lidar,     1)
 
         # 5. 键盘线程
         threading.Thread(target=self.keyboard_thread, daemon=True).start()

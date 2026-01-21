@@ -36,6 +36,16 @@ def generate_launch_description():
                 {'imu_topic': "unilidar/imu"}]
     )
 
+    multi_lidar_merge = Node(
+      package='vision_lidar_capture',
+      executable='multi_lidar_merge',
+      name='multi_lidar_merge_node',
+      output='screen',
+      parameters=[
+                {'merge_rounds': 5},
+      ]
+    )
+
     # 图像校正
     camera_rectify = Node(
         package='camera_driver',
@@ -89,6 +99,7 @@ def generate_launch_description():
     return LaunchDescription([
         camera_driver,
         lidar_driver,
+        multi_lidar_merge,
         camera_rectify,
         stereo_disparity,
         yolov5_detector,

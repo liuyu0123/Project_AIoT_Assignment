@@ -25,6 +25,7 @@ setup(
     entry_points={
         'console_scripts': [
             'vision_lidar_capture = vision_lidar_capture.vision_lidar_capture:main',
+            'multi_lidar_merge = vision_lidar_capture.multi_lidar_merge:main',
         ],
     },
 )
