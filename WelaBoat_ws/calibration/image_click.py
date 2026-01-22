@@ -13,5 +13,5 @@ cv2.imshow("image", img)
 cv2.setMouseCallback("image", mouse_cb)
 cv2.waitKey(0)
 
-with open("image_points.json", "w") as f:
+with open("calib/image_points.json", "w") as f:
     json.dump(points, f)

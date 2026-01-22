@@ -13,5 +13,5 @@ vis.destroy_window()
 idx = vis.get_picked_points()
 pts = [pcd.points[i] for i in idx]
 
-with open("cloud_points.json", "w") as f:
+with open("calib/cloud_points.json", "w") as f:
     json.dump([list(p) for p in pts], f)

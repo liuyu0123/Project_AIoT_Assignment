@@ -16,8 +16,8 @@ K = left_camera_matrix
 #               [0, fy, cy],
 #               [0,  0,  1]])
 
-P_lidar = np.array(json.load(open("cloud_points.json"))).T
-p_img = np.array(json.load(open("image_points.json"))).T
+P_lidar = np.array(json.load(open("calib/cloud_points.json"))).T
+p_img = np.array(json.load(open("calib/image_points.json"))).T
 
 def project(params, P):
     rvec = params[:3]
@@ -43,6 +43,6 @@ extrinsic = {
     "tvec": tvec_opt.tolist(),
     "camera_matrix": K.tolist()
 }
-with open("extrinsic.json", "w") as f:
+with open("calib/extrinsic.json", "w") as f:
     json.dump(extrinsic, f, indent=2)
 print("Saved extrinsic to extrinsic.json")

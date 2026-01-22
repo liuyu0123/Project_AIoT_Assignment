@@ -25,13 +25,13 @@ img = cv2.imread("/home/riba/GitProject/LIUYU/WelaBoat_ws/Data/data_calib3/left/
 # tvec = np.array([[tx], [ty], [tz]])
 # rvec = np.array([0.790632,   -1.44847305,  1.63778087])
 # tvec = np.array([[0.21818845], [-0.15760476],  [0.02509677]])
-ext = json.load(open("extrinsic.json"))
+ext = json.load(open("calib/extrinsic.json"))
 rvec = np.array(ext["rvec"])
 tvec = np.array(ext["tvec"]).reshape(3, 1)
 K    = np.array(ext["camera_matrix"])
 
 # 读取 LiDAR 点（可以是整帧，也可以是你点的点）
-P_lidar = np.array(json.load(open("cloud_points.json"))).T
+P_lidar = np.array(json.load(open("calib/cloud_points.json"))).T
 
 # ========= 投影 =========
 R, _ = cv2.Rodrigues(rvec)
@@ -54,7 +54,7 @@ print("Press 's' to save the screenshot or any other key to exit.")
 # cv2.waitKey(0)
 key = cv2.waitKey(0) & 0xFF
 if key == ord('s'):  # 按下 's' 键截图
-    cv2.imwrite('screenshot.png', img)
+    cv2.imwrite('calib/screenshot.png', img)
     print("截图已保存为 screenshot.png")
 elif key == 27:  # ESC 键退出
     cv2.destroyAllWindows()
