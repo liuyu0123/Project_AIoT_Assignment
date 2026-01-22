@@ -21,5 +21,9 @@ ros2 pkg create fastscnn_segmenter \
 vision_fusion
 
 # 多源感知融合
-radar_vision_fusion
+# radar_vision_fusion
+ros2 pkg create lidar_vision_fusion \
+  --build-type ament_python \
+  --dependencies rclpy sensor_msgs cv_bridge std_msgs vision_msgs message_filters \
+  --license Apache-2.0
 
