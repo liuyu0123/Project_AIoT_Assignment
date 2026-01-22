@@ -8,6 +8,8 @@ import numpy as np
 import os
 import sys
 import cv2
+from vision_msgs.msg import Detection2DArray, Detection2D, ObjectHypothesisWithPose
+from geometry_msgs.msg import Point, Pose2D
 
 # === 添加 YOLOv5 路径（请确保 ~/yolov5 是官方仓库）===
 YOLOV5_PATH = os.path.expanduser("~/yolov5")
@@ -55,6 +57,8 @@ class YoloV5DetectorNode(Node):
         # 订阅与发布
         self.subscription = self.create_subscription(Image, input_topic, self.image_callback, 10)
         self.publisher_ = self.create_publisher(Image, output_topic, 10)
+        # 发布2D检测框
+        self.detection_publisher_ = self.create_publisher(Detection2DArray, '/yolov5/bboxes', 10)
 
         self.get_logger().info(
             f'YOLOv5 detector started.\n'
@@ -86,6 +90,10 @@ class YoloV5DetectorNode(Node):
             det_img = im0.copy()
             det = pred[0]  # (n, 6) tensor: [x1, y1, x2, y2, conf, cls]
 
+            # 创建 Detection2DArray 消息
+            detections_msg = Detection2DArray()
+            detections_msg.header = msg.header  # 保持时间戳和 frame_id 一致
+
             if det is not None and len(det) > 0:
                 # 确保是二维张量
                 if det.dim() == 1:
@@ -102,12 +110,36 @@ class YoloV5DetectorNode(Node):
                     if conf < self.conf_thres:
                         continue
 
+                    # 设置边界框中心、大小
+                    center_x = (x1 + x2) / 2.0
+                    center_y = (y1 + y2) / 2.0
+                    width = x2 - x1
+                    height = y2 - y1
+
+                    # 构造单个 Detection2D
+                    detection2d = Detection2D()
+                    detection2d.bbox.center.position.x = float(center_x)
+                    detection2d.bbox.center.position.y = float(center_y)
+                    detection2d.bbox.center.theta = 0.0
+                    detection2d.bbox.size_x = float(width)
+                    detection2d.bbox.size_y = float(height)
+
+                    # 设置类别和置信度
+                    hypothesis = ObjectHypothesisWithPose()
+                    hypothesis.hypothesis.class_id = self.names[cls]
+                    hypothesis.hypothesis.score = float(conf)
+                    detection2d.results.append(hypothesis)
+                    detections_msg.detections.append(detection2d)
+
+                    # 准备将检测框绘制在原始图像上
                     label = f'{self.names[cls]} {conf:.2f}'
                     # 绘制框
                     cv2.rectangle(det_img, (x1, y1), (x2, y2), (0, 255, 0), 2)
                     # 绘制标签
                     cv2.putText(det_img, label, (x1, y1 - 10),
                                 cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
+
+
 
                     # self.get_logger().info(f'Detected: {label} at ({x1},{y1})-({x2},{y2})')
 
@@ -116,8 +148,11 @@ class YoloV5DetectorNode(Node):
             out_msg.header = msg.header
             self.publisher_.publish(out_msg)
 
+            # 发布2D检测框检测结果
+            self.detection_publisher_.publish(detections_msg)
+
         except Exception as e:
-            self.get_logger().error(f'Error in detection: {str(e)}', exc_info=True)
+            self.get_logger().error(f'Error in detection: {str(e)}')
 
 def main(args=None):
     rclpy.init(args=args)
