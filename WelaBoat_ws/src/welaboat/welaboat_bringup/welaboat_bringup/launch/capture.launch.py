@@ -42,7 +42,7 @@ def generate_launch_description():
       name='multi_lidar_merge_node',
       output='screen',
       parameters=[
-                {'merge_rounds': 5},
+                {'merge_rounds': 100},
       ]
     )
 
@@ -96,13 +96,23 @@ def generate_launch_description():
         output='screen'
     )
 
+    # 数据保存，emulate_tty=True 指定终端由本节点接管输入输出
+    vision_lidar_capture = Node(
+        package='vision_lidar_capture',
+        executable='vision_lidar_capture',
+        name='vision_lidar_capture_node',
+        output='screen',
+        emulate_tty=True
+    )
+
     return LaunchDescription([
         camera_driver,
         lidar_driver,
         multi_lidar_merge,
-        camera_rectify,
-        stereo_disparity,
-        yolov5_detector,
+        # camera_rectify,
+        # stereo_disparity,
+        # yolov5_detector,
         # fastscnn_segmenter_citys,
-        fastscnn_segmenter_water,
+        # fastscnn_segmenter_water,
+        # vision_lidar_capture,
     ])

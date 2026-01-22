@@ -14,7 +14,8 @@ ros2 pkg create fastscnn_segmenter \
   --license Apache-2.0
 
 # 激光雷达
-lidar_processor
+# lidar_processor
+# 直接用宇树的官方SDK的ROS2版本。
 
 # 视觉融合
 vision_fusion
