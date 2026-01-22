@@ -3,16 +3,28 @@ import numpy as np
 import json
 
 # ========= 配置 =========
-img = cv2.imread("image.png")
+img = cv2.imread("/home/riba/GitProject/LIUYU/WelaBoat_ws/Data/data_calib3/left/0040.png")
+
+
+json_file = '/home/riba/GitProject/LIUYU/WelaBoat_ws/src/drivers/camera_driver/camera_driver/utils/stereoParams_512pixel.json'
+with open(json_file, 'r') as f:
+    data = json.load(f)
+
+# Extract camera matrices and distortion coefficients
+left_camera_matrix = np.array(data["Camera1"]["K"])
+K = left_camera_matrix
 
 # 相机内参
-K = np.array([[fx, 0, cx],
-              [0, fy, cy],
-              [0,  0,  1]])
+# K = np.array([[fx, 0, cx],
+#               [0, fy, cy],
+#               [0,  0,  1]])
 
 # 标定结果（从 optimize_extrinsic.py 拷贝）
-rvec = np.array([rx, ry, rz])
-tvec = np.array([[tx], [ty], [tz]])
+# Optimized_params = [ 0.790632,   -1.44847305,  1.63778087,  0.21818845, -0.15760476,  0.02509677]
+# rvec = np.array([rx, ry, rz])
+# tvec = np.array([[tx], [ty], [tz]])
+rvec = np.array([0.790632,   -1.44847305,  1.63778087])
+tvec = np.array([[0.21818845], [-0.15760476],  [0.02509677]])
 
 # 读取 LiDAR 点（可以是整帧，也可以是你点的点）
 P_lidar = np.array(json.load(open("cloud_points.json"))).T
@@ -34,4 +46,11 @@ for i in range(len(P_lidar.T)):
     cv2.circle(img, (u, v), 4, (0, 0, 255), -1)
 
 cv2.imshow("projection", img)
-cv2.waitKey(0)
+print("Press 's' to save the screenshot or any other key to exit.")
+# cv2.waitKey(0)
+key = cv2.waitKey(0) & 0xFF
+if key == ord('s'):  # 按下 's' 键截图
+    cv2.imwrite('screenshot.png', img)
+    print("截图已保存为 screenshot.png")
+elif key == 27:  # ESC 键退出
+    cv2.destroyAllWindows()
