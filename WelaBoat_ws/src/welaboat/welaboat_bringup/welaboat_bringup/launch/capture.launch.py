@@ -42,7 +42,7 @@ def generate_launch_description():
       name='multi_lidar_merge_node',
       output='screen',
       parameters=[
-                {'merge_rounds': 5},
+                {'merge_rounds': 100},
       ]
     )
 
