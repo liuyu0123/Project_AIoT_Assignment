@@ -35,3 +35,14 @@ def error(params):
 params0 = np.zeros(6)
 res = least_squares(error, params0, loss='huber')
 print("Optimized params:", res.x)
+
+rvec_opt = res.x[:3]
+tvec_opt = res.x[3:]
+extrinsic = {
+    "rvec": rvec_opt.tolist(),
+    "tvec": tvec_opt.tolist(),
+    "camera_matrix": K.tolist()
+}
+with open("extrinsic.json", "w") as f:
+    json.dump(extrinsic, f, indent=2)
+print("Saved extrinsic to extrinsic.json")

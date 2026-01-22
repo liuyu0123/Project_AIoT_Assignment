@@ -6,13 +6,13 @@ import json
 img = cv2.imread("/home/riba/GitProject/LIUYU/WelaBoat_ws/Data/data_calib3/left/0040.png")
 
 
-json_file = '/home/riba/GitProject/LIUYU/WelaBoat_ws/src/drivers/camera_driver/camera_driver/utils/stereoParams_512pixel.json'
-with open(json_file, 'r') as f:
-    data = json.load(f)
+# json_file = '/home/riba/GitProject/LIUYU/WelaBoat_ws/src/drivers/camera_driver/camera_driver/utils/stereoParams_512pixel.json'
+# with open(json_file, 'r') as f:
+#     data = json.load(f)
 
 # Extract camera matrices and distortion coefficients
-left_camera_matrix = np.array(data["Camera1"]["K"])
-K = left_camera_matrix
+# left_camera_matrix = np.array(data["Camera1"]["K"])
+# K = left_camera_matrix
 
 # 相机内参
 # K = np.array([[fx, 0, cx],
@@ -23,8 +23,12 @@ K = left_camera_matrix
 # Optimized_params = [ 0.790632,   -1.44847305,  1.63778087,  0.21818845, -0.15760476,  0.02509677]
 # rvec = np.array([rx, ry, rz])
 # tvec = np.array([[tx], [ty], [tz]])
-rvec = np.array([0.790632,   -1.44847305,  1.63778087])
-tvec = np.array([[0.21818845], [-0.15760476],  [0.02509677]])
+# rvec = np.array([0.790632,   -1.44847305,  1.63778087])
+# tvec = np.array([[0.21818845], [-0.15760476],  [0.02509677]])
+ext = json.load(open("extrinsic.json"))
+rvec = np.array(ext["rvec"])
+tvec = np.array(ext["tvec"]).reshape(3, 1)
+K    = np.array(ext["camera_matrix"])
 
 # 读取 LiDAR 点（可以是整帧，也可以是你点的点）
 P_lidar = np.array(json.load(open("cloud_points.json"))).T
