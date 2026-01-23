@@ -18,7 +18,7 @@ ros2 pkg create fastscnn_segmenter \
 # 直接用宇树的官方SDK的ROS2版本。
 
 # 视觉融合
-vision_fusion
+# vision_fusion
 
 # 多源感知融合
 # radar_vision_fusion
