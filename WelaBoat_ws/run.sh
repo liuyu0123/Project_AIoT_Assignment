@@ -74,6 +74,8 @@ rviz2 -d src/drivers/unitree_lidar_ros2/rviz/view.rviz
 ros2 bag record -a
 # 录制数据，按照--max-bag-duration设定的时间间隔分包（直接删掉无法play）
 ros2 bag record -a --max-bag-duration=10
+# 录制数据，mcap格式
+ros2 bag record -a --max-bag-duration=10 --storage mcap
 
 # 播放数据
 ros2 bag play rosbag2_2026_01_23-11_28_49/
