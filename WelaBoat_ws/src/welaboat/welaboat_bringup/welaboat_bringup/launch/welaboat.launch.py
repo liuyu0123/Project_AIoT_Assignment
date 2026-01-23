@@ -39,14 +39,14 @@ def generate_launch_description():
     unilidar_static_tf = Node(
         package='tf2_ros',
         executable='static_transform_publisher',
-        name='unilidar_static_tf',
+        name='unilidar_static_tf_node',
         arguments=[
             '0', '0', '0',
             '0', '0', '0',
             'base_link',
             'unilidar_lidar'
         ],
-    ),
+    )
 
     multi_lidar_merge = Node(
       package='vision_lidar_capture',
