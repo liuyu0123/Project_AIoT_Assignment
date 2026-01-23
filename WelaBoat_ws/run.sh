@@ -70,6 +70,16 @@ rviz2 -d src/drivers/unitree_lidar_ros2/rviz/view.rviz
 
 
 
+# 录制数据
+ros2 bag record -a
+# 录制数据，按照--max-bag-duration设定的时间间隔分包（直接删掉无法play）
+ros2 bag record -a --max-bag-duration=10
+
+# 播放数据
+ros2 bag play rosbag2_2026_01_23-11_28_49/
+# 循环播放
+ros2 bag play -l rosbag2_2026_01_23-11_28_49/
+
 
 # 一键启动整个链路
 ros2 launch welaboat_bringup welaboat.launch.py
