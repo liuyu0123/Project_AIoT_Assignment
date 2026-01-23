@@ -19,6 +19,8 @@ from cv_bridge import CvBridge
 # import sensor_msgs.point_cloud2 as pc2  # ros1的写法
 from sensor_msgs_py import point_cloud2 as pc2  # ros2的写法
 
+from visualization_msgs.msg import Marker, MarkerArray
+from builtin_interfaces.msg import Duration
 
 
 class LidarVisionFusionNode(Node):
@@ -95,6 +97,7 @@ class LidarVisionFusionNode(Node):
         # === 发布器 ===
         self.pub_objects = self.create_publisher(Detection3DArray, '/fused/objects', 10)
         self.pub_freespace = self.create_publisher(PointCloud2, '/fused/freespace', 10)
+        self.marker_pub = self.create_publisher(MarkerArray, '/fused/objects_markers', 10)
 
         self.bridge = CvBridge()
         self.get_logger().info("LiDAR-Vision Fusion node started.")
@@ -160,6 +163,11 @@ class LidarVisionFusionNode(Node):
             detections_3d = Detection3DArray()
             detections_3d.header = detections_msg.header
 
+            marker_array = MarkerArray()
+            marker_id = 0
+
+
+
             for det2d in detections_msg.detections:
                 x_center = det2d.bbox.center.position.x
                 y_center = det2d.bbox.center.position.y
@@ -208,7 +216,41 @@ class LidarVisionFusionNode(Node):
 
                 detections_3d.detections.append(det3d)
 
+                # 创建 Marker 队列
+                marker = Marker()
+                marker.header = detections_3d.header
+                marker.ns = 'fused_objects'
+                marker.id = marker_id
+                marker_id += 1
+
+                marker.type = Marker.CUBE
+                marker.action = Marker.ADD
+
+                # === 位置 ===
+                marker.pose.position.x = det2d.bbox.center.position.x
+                marker.pose.position.y = det2d.bbox.center.position.y
+                marker.pose.position.z = det2d.bbox.center.position.z
+                marker.pose.orientation = det2d.bbox.center.orientation
+
+                # === 尺寸 ===
+                marker.scale.x = det2d.bbox.size.x
+                marker.scale.y = det2d.bbox.size.y
+                marker.scale.z = det2d.bbox.size.z
+
+                # === 颜色（可按类别区分）===
+                marker.color.r = 0.1
+                marker.color.g = 0.8
+                marker.color.b = 0.1
+                marker.color.a = 0.6
+
+                # === 生命周期（防止残影）===
+                marker.lifetime = Duration(sec=0, nanosec=300_000_000)
+
+                marker_array.markers.append(marker)
+
+
             self.pub_objects.publish(detections_3d)
+            self.marker_pub.publish(marker_array)
 
         except Exception as e:
             self.get_logger().error(f"Fusion error: {str(e)}")
