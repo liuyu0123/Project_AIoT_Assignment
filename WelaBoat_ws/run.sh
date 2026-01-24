@@ -70,6 +70,16 @@ rviz2 -d src/drivers/unitree_lidar_ros2/rviz/view.rviz
 
 
 
+####################### ROS2 PNG&PCD RECORD [FOR CALIBRATION] ######################
+# 先运行run_capture.sh
+# 再新开一个终端，运行
+ros2 run vision_lidar_capture vision_lidar_capture
+# 检查图像是否符合要求
+ros2 run camera_driver camera_viewer /camera/left/image_raw
+
+
+
+####################### ROS2 BAG RECORD ######################
 # 录制数据
 ros2 bag record -a
 # 录制数据，按照--max-bag-duration设定的时间间隔分包（直接删掉无法play）
@@ -83,5 +93,6 @@ ros2 bag play rosbag2_2026_01_23-11_28_49/
 ros2 bag play -l rosbag2_2026_01_23-11_28_49/
 
 
+####################### ROS2 LAUNCH ######################
 # 一键启动整个链路
 ros2 launch welaboat_bringup welaboat.launch.py
