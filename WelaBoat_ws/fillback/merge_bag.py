@@ -127,8 +127,8 @@ def main():
 
     copy_base_bag(base, out)
 
-    base_db = find_mcap(out)
-    replay_db = find_mcap(replay)
+    base_db = find_db(out)
+    replay_db = find_db(replay)
 
     delete_topics(base_db, args.override_topics)
     insert_replay_data(base_db, replay_db)
