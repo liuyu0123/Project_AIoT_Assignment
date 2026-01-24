@@ -3,7 +3,8 @@ import numpy as np
 import json
 
 # ========= 配置 =========
-img = cv2.imread("/home/riba/GitProject/LIUYU/WelaBoat_ws/Data/data_calib3/left/0040.png")
+# img = cv2.imread("/home/riba/GitProject/LIUYU/WelaBoat_ws/Data/data_calib3/left/0040.png")
+img = cv2.imread("/home/riba/GitProject/LIUYU/WelaBoat_ws/Data/data_calib4_newRoundBoard/left/0022.png")
 
 
 # json_file = '/home/riba/GitProject/LIUYU/WelaBoat_ws/src/drivers/camera_driver/camera_driver/utils/stereoParams_512pixel.json'

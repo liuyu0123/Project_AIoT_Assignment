@@ -93,6 +93,15 @@ ros2 bag play rosbag2_2026_01_23-11_28_49/
 ros2 bag play -l rosbag2_2026_01_23-11_28_49/
 
 
+####################### ROS2 BAG PLAY ######################
+# 纸板目标
+ros2 bag play -l /home/riba/GitProject/LIUYU/WelaBoat_ws/record/TargetBoardData/rosbag2_2026_01_24-15_27_37/
+# 3D目标检测
+
+
+
+
+
 ####################### ROS2 LAUNCH ######################
 # 一键启动整个链路
 ros2 launch welaboat_bringup welaboat.launch.py
