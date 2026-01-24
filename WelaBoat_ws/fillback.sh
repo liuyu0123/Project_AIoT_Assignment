@@ -2,7 +2,7 @@
 set -e
 
 # ===============================
-# fillback.sh (ULTIMATE VERSION)
+# fillback.sh (ULTIMATE - HUMBLE)
 # ===============================
 
 if [ $# -lt 1 ]; then
@@ -33,7 +33,10 @@ BASE_DB3="${BASE_BAG_DIR}_db3"
 
 if [ ! -d "$BASE_DB3" ]; then
   echo "[0/7] Convert base bag to sqlite3..."
-  ros2 bag convert "$BASE_BAG_DIR" --storage sqlite3
+  ros2 bag convert \
+    -i "$BASE_BAG_DIR" \
+    -o "$BASE_DB3" \
+    -s sqlite3
 fi
 
 # -------------------------------
@@ -97,7 +100,10 @@ python3 "$FILLBACK_DIR/merge_bag.py" \
 # Step 7: convert merged bag to mcap
 # -------------------------------
 echo "[7/7] Convert merged bag to mcap..."
-ros2 bag convert "$MERGED_DB3" --storage mcap -o "$MERGED_MCAP"
+ros2 bag convert \
+  -i "$MERGED_DB3" \
+  -o "$MERGED_MCAP" \
+  -s mcap
 
 echo
 echo "✅ Fillback DONE"
