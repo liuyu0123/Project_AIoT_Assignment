@@ -281,8 +281,9 @@ class LidarVisionFusionNode(Node):
 
             self.pub_objects.publish(detections_3d)
             # self.marker_pub.publish(marker_array)
-            # ===== 缓存最新 marker，用于定时发布 =====
-            self.latest_marker_array = marker_array
+            # ===== 仅在成功时，更新 marker 缓存 =====
+            if marker_array.markers:
+                self.latest_marker_array = marker_array
 
         except Exception as e:
             self.get_logger().error(f"Fusion error: {str(e)}")
