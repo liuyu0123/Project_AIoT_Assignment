@@ -102,6 +102,30 @@ class LidarVisionFusionNode(Node):
         self.bridge = CvBridge()
         self.get_logger().info("LiDAR-Vision Fusion node started.")
 
+        # ===== Debug Marker 缓存 =====
+        self.latest_marker_array = MarkerArray()
+        self.marker_lock = False  # Python 下简单点，不用 mutex 也行
+
+        # ===== 定时发布 Marker（5 Hz）=====
+        self.marker_timer = self.create_timer(
+            0.2,  # 5 Hz
+            self.publish_markers_timer
+        )
+
+
+    def publish_markers_timer(self):
+        # 没有数据就不发（也可以选择发空 MarkerArray）
+        if not self.latest_marker_array.markers:
+            return
+
+        # 更新时间戳（非常重要！）
+        now = self.get_clock()->now().to_msg()
+        for m in self.latest_marker_array.markers:
+            m.header.stamp = now
+
+        self.marker_pub.publish(self.latest_marker_array)
+
+
     def fusion_callback(self, detections_msg, mask_msg, pointcloud_msg, image_msg):
         try:
             # === 1. 解析语义 mask ===
@@ -219,6 +243,7 @@ class LidarVisionFusionNode(Node):
                 # 创建 Marker 队列
                 marker = Marker()
                 marker.header = detections_3d.header
+                marker.header.frame_id = pointcloud_msg.header.frame_id
                 marker.ns = 'fused_objects'
                 marker.id = marker_id
                 marker_id += 1
@@ -227,10 +252,15 @@ class LidarVisionFusionNode(Node):
                 marker.action = Marker.ADD
 
                 # === 位置 ===
-                marker.pose.position.x = det2d.bbox.center.position.x
-                marker.pose.position.y = det2d.bbox.center.position.y
-                marker.pose.position.z = det2d.bbox.center.position.z
-                marker.pose.orientation = det2d.bbox.center.orientation
+                # marker.pose.position.x = det2d.bbox.center.position.x
+                # marker.pose.position.y = det2d.bbox.center.position.y
+                # marker.pose.position.z = det2d.bbox.center.position.z
+                # marker.pose.orientation = det2d.bbox.center.orientation
+                marker.pose.position.x = float(center_3d[0])
+                marker.pose.position.y = float(center_3d[1])
+                marker.pose.position.z = float(center_3d[2])
+                marker.pose.orientation.w = 1.0
+
 
                 # === 尺寸 ===
                 marker.scale.x = det2d.bbox.size.x
@@ -250,7 +280,9 @@ class LidarVisionFusionNode(Node):
 
 
             self.pub_objects.publish(detections_3d)
-            self.marker_pub.publish(marker_array)
+            # self.marker_pub.publish(marker_array)
+            # ===== 缓存最新 marker，用于定时发布 =====
+            self.latest_marker_array = marker_array
 
         except Exception as e:
             self.get_logger().error(f"Fusion error: {str(e)}")
