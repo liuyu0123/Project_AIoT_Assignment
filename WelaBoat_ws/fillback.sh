@@ -1,98 +1,104 @@
 #!/usr/bin/env bash
 set -e
 
+# ===============================
+# fillback.sh (ULTIMATE VERSION)
+# ===============================
+
 if [ $# -lt 1 ]; then
-  echo "Usage: $0 <rosbag_dir_or_mcap>"
+  echo "Usage: $0 <input_bag (dir or .mcap)>"
   exit 1
 fi
 
-INPUT_PATH=$(realpath "$1")
+INPUT_BAG="$1"
+WORKSPACE="$HOME/GitProject/LIUYU/WelaBoat_ws"
+FILLBACK_DIR="$WORKSPACE/fillback"
+TIMESTAMP=$(date +%Y%m%d_%H%M%S)
 
-
-colcon build
-source ~/miniconda3/bin/activate yolov5_env
-python -m colcon build --packages-select yolov5_detector fastscnn_segmenter --symlink-install
-conda deactivate
-conda deactivate
-source install/setup.bash
-
-
-########################################
-# 1. 统一解析成 rosbag 目录
-########################################
-if [ -f "$INPUT_PATH" ]; then
-  # 传的是 .mcap / .db3
-  BAG_DIR=$(dirname "$INPUT_PATH")
-elif [ -d "$INPUT_PATH" ]; then
-  # 直接传的是 bag 目录
-  BAG_DIR="$INPUT_PATH"
+# -------------------------------
+# Resolve base bag dir
+# -------------------------------
+if [ -f "$INPUT_BAG" ]; then
+  BASE_BAG_DIR="$(dirname "$INPUT_BAG")"
 else
-  echo "[ERROR] Invalid input: $INPUT_PATH"
-  exit 1
+  BASE_BAG_DIR="$INPUT_BAG"
 fi
 
-# sanity check
-if [ ! -f "$BAG_DIR/metadata.yaml" ]; then
-  echo "[ERROR] $BAG_DIR is not a valid rosbag2 directory"
-  exit 1
+echo "[fillback] base bag dir: $BASE_BAG_DIR"
+
+# -------------------------------
+# Step 0: normalize base bag to db3
+# -------------------------------
+BASE_DB3="${BASE_BAG_DIR}_db3"
+
+if [ ! -d "$BASE_DB3" ]; then
+  echo "[0/7] Convert base bag to sqlite3..."
+  ros2 bag convert "$BASE_BAG_DIR" --storage sqlite3
 fi
 
-echo "[fillback] base bag dir: $BAG_DIR"
+# -------------------------------
+# Paths
+# -------------------------------
+FILLBACK_BAG="${BASE_BAG_DIR}_fillback_${TIMESTAMP}"
+MERGED_DB3="${BASE_BAG_DIR}_merged_db3_${TIMESTAMP}"
+MERGED_MCAP="${BASE_BAG_DIR}_merged_${TIMESTAMP}"
 
-########################################
-# 2. 准备输出目录
-########################################
-TS=$(date +%Y%m%d_%H%M%S)
-FILLBACK_BAG="${BAG_DIR}_fillback_${TS}"
-MERGED_BAG="${BAG_DIR}_merged_${TS}"
-
-########################################
-# 3. 启动 fillback 节点
-########################################
-echo "[1/6] Launch fillback nodes (use_sim_time)..."
+# -------------------------------
+# Step 1: launch fillback nodes
+# -------------------------------
+echo "[1/7] Launch fillback nodes (use_sim_time)..."
 ros2 launch welaboat_bringup fillback.launch.py use_sim_time:=true &
 LAUNCH_PID=$!
 sleep 3
 
-########################################
-# 4. 录制 fillback 结果
-########################################
-echo "[2/6] Start recording fillback topics..."
+# -------------------------------
+# Step 2: record fillback topics (db3 only!)
+# -------------------------------
+echo "[2/7] Start recording fillback topics..."
 ros2 bag record \
   /debug/fused/objects_markers \
   --use-sim-time \
-  -o "$FILLBACK_BAG" \
-  --storage mcap &
+  -o "$FILLBACK_BAG" &
 REC_PID=$!
+
 sleep 2
 
-########################################
-# 5. 回放原始 bag
-########################################
-echo "[3/6] Play input bag with clock (slow rate)..."
-ros2 bag play "$BAG_DIR" \
-  --clock \
-  --rate 0.3
+# -------------------------------
+# Step 3: play base bag with clock
+# -------------------------------
+echo "[3/7] Play input bag with clock (slow rate)..."
+ros2 bag play "$BASE_DB3" --clock -r 0.3
 
-########################################
-# 6. 停止录制 & 节点
-########################################
-echo "[4/6] Stop recording..."
+# -------------------------------
+# Step 4: stop recording
+# -------------------------------
+echo "[4/7] Stop recording..."
 kill $REC_PID
 wait $REC_PID || true
 
-echo "[5/6] Stop fillback nodes..."
+# -------------------------------
+# Step 5: stop fillback nodes
+# -------------------------------
+echo "[5/7] Stop fillback nodes..."
 kill $LAUNCH_PID
 wait $LAUNCH_PID || true
 
-########################################
-# 7. 合并 bag
-########################################
-echo "[6/6] Merge bags..."
-python3 fillback/merge_bag.py \
-  --base   "$BAG_DIR" \
+# -------------------------------
+# Step 6: merge db3 bags
+# -------------------------------
+echo "[6/7] Merge db3 bags..."
+python3 "$FILLBACK_DIR/merge_bag.py" \
+  --base "$BASE_DB3" \
   --replay "$FILLBACK_BAG" \
-  --out    "$MERGED_BAG" \
-  --override /debug/fused/objects_markers
+  --out "$MERGED_DB3" \
+  --override-topics /debug/fused/objects_markers
 
-echo "[DONE] merged bag -> $MERGED_BAG"
+# -------------------------------
+# Step 7: convert merged bag to mcap
+# -------------------------------
+echo "[7/7] Convert merged bag to mcap..."
+ros2 bag convert "$MERGED_DB3" --storage mcap -o "$MERGED_MCAP"
+
+echo
+echo "✅ Fillback DONE"
+echo "👉 Final bag: $MERGED_MCAP"
