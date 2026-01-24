@@ -97,8 +97,13 @@ ros2 bag play -l rosbag2_2026_01_23-11_28_49/
 # 纸板目标
 ros2 bag play -l /home/riba/GitProject/LIUYU/WelaBoat_ws/record/TargetBoardData/rosbag2_2026_01_24-15_27_37/
 # 3D目标检测
+ros2 bag play -l /home/riba/GitProject/LIUYU/WelaBoat_ws/record/TargetBoardData/rosbag2_2026_01_24-15_27_37/rosbag2_2026_01_24-15_27_37_0.mcap
 
 
+####################### ROS2 BAG FILLBACK ######################
+# ros2 launch welaboat_bringup fillback.launch.py
+cd ws
+bash fillback.sh /home/riba/GitProject/LIUYU/WelaBoat_ws/record/TargetBoardData/rosbag2_2026_01_24-15_27_37/rosbag2_2026_01_24-15_27_37_0.mcap
 
 
 

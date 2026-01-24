@@ -31,6 +31,13 @@ def find_db(bag_dir: Path):
     raise RuntimeError(f"No .db3 found in {bag_dir}")
 
 
+def find_mcap(bag_dir: Path):
+    for f in bag_dir.iterdir():
+        if f.suffix == ".mcap":
+            return f
+    raise RuntimeError(f"No .mcap found in {bag_dir}")
+
+
 def copy_base_bag(base: Path, out: Path):
     if out.exists():
         shutil.rmtree(out)
@@ -120,8 +127,8 @@ def main():
 
     copy_base_bag(base, out)
 
-    base_db = find_db(out)
-    replay_db = find_db(replay)
+    base_db = find_mcap(out)
+    replay_db = find_mcap(replay)
 
     delete_topics(base_db, args.override_topics)
     insert_replay_data(base_db, replay_db)
