@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 set -e
 
+INPUT_CONVERT=1
+ONLY_FILLBACK=1
+
 if [ $# -lt 1 ]; then
   echo "Usage: $0 <input_bag (dir or .mcap)>"
   exit 1
@@ -23,6 +26,9 @@ fi
 echo "[fillback] base bag dir: $BASE_DIR"
 
 BASE_DB3="${BASE_DIR}_db3"
+# FILL_DB3="${BASE_DIR}_fillback"
+# MERGED_DB3="${BASE_DIR}_merged_db3"
+# MERGED_MCAP="${BASE_DIR}_merged"
 FILL_DB3="${BASE_DIR}_fillback_${TS}"
 MERGED_DB3="${BASE_DIR}_merged_db3_${TS}"
 MERGED_MCAP="${BASE_DIR}_merged_${TS}"
@@ -104,6 +110,14 @@ wait $REC_PID || true
 # -----------------------------
 kill $LAUNCH_PID
 wait $LAUNCH_PID || true
+
+
+if [ $ONLY_FILLBACK -eq 1 ]; then
+  echo "Skip merging..."
+  echo "✅ DONE"
+  exit 0
+fi
+
 
 # -----------------------------
 # Step 6: merge db3
