@@ -8,6 +8,15 @@ fi
 
 INPUT_PATH=$(realpath "$1")
 
+
+colcon build
+source ~/miniconda3/bin/activate yolov5_env
+python -m colcon build --packages-select yolov5_detector fastscnn_segmenter --symlink-install
+conda deactivate
+conda deactivate
+source install/setup.bash
+
+
 ########################################
 # 1. 统一解析成 rosbag 目录
 ########################################
@@ -41,7 +50,7 @@ MERGED_BAG="${BAG_DIR}_merged_${TS}"
 # 3. 启动 fillback 节点
 ########################################
 echo "[1/6] Launch fillback nodes (use_sim_time)..."
-ros2 launch fillback fillback.launch.py use_sim_time:=true &
+ros2 launch welaboat_bringup fillback.launch.py use_sim_time:=true &
 LAUNCH_PID=$!
 sleep 3
 
@@ -52,7 +61,8 @@ echo "[2/6] Start recording fillback topics..."
 ros2 bag record \
   /debug/fused/objects_markers \
   --use-sim-time \
-  -o "$FILLBACK_BAG" &
+  -o "$FILLBACK_BAG" \
+  --storage mcap &
 REC_PID=$!
 sleep 2
 
@@ -62,8 +72,7 @@ sleep 2
 echo "[3/6] Play input bag with clock (slow rate)..."
 ros2 bag play "$BAG_DIR" \
   --clock \
-  --rate 0.3 \
-  --loop false
+  --rate 0.3
 
 ########################################
 # 6. 停止录制 & 节点
