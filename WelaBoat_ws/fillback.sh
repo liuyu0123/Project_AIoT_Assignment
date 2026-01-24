@@ -1,10 +1,6 @@
 #!/usr/bin/env bash
 set -e
 
-# ===============================
-# fillback.sh (ULTIMATE - HUMBLE)
-# ===============================
-
 if [ $# -lt 1 ]; then
   echo "Usage: $0 <input_bag (dir or .mcap)>"
   exit 1
@@ -36,7 +32,7 @@ if [ ! -d "$BASE_DB3" ]; then
   ros2 bag convert \
     -i "$BASE_BAG_DIR" \
     -o "$BASE_DB3" \
-    -s sqlite3
+    --output-storage sqlite3
 fi
 
 # -------------------------------
@@ -55,7 +51,7 @@ LAUNCH_PID=$!
 sleep 3
 
 # -------------------------------
-# Step 2: record fillback topics (db3 only!)
+# Step 2: record fillback topics (db3 only)
 # -------------------------------
 echo "[2/7] Start recording fillback topics..."
 ros2 bag record \
@@ -103,7 +99,7 @@ echo "[7/7] Convert merged bag to mcap..."
 ros2 bag convert \
   -i "$MERGED_DB3" \
   -o "$MERGED_MCAP" \
-  -s mcap
+  --output-storage mcap
 
 echo
 echo "✅ Fillback DONE"
