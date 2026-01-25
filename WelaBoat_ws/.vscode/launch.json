@@ -95,6 +95,13 @@
             "request": "launch",
             // "program": "/home/riba/GitProject/LIUYU/WelaBoat_ws/install/lidar_vision_fusion/lib/lidar_vision_fusion/lidar_vision_fusion",
             "program": "/home/riba/GitProject/LIUYU/WelaBoat_ws/src/perception/lidar_vision_fusion/lidar_vision_fusion/lidar_vision_fusion_node.py",
+            "args": [
+                "--ros-args",
+                "-p", "use_sim_time:=true",
+                "-r", "/fused/freespace:=/fused/freespace_debug",
+                "-r", "/fused/objects:=/fused/objects_debug",
+                "-r", "/fused/objects_markers:=/fused/objects_markers_debug",
+            ],
         },
         {
             "name": "ros2 run 调试",
