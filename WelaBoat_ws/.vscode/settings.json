@@ -1,0 +1,31 @@
+{
+  "ros.distro": "humble",
+  "python.defaultInterpreterPath": "/usr/bin/python3",
+  "ROS2.distro": "humble",
+  "python.autoComplete.extraPaths": [
+    "/home/riba/GitProject/LIUYU/WelaBoat_ws/build/yolov5_detector",
+    "/home/riba/GitProject/LIUYU/WelaBoat_ws/install/yolov5_detector/lib/python3.10/site-packages",
+    "/home/riba/GitProject/LIUYU/WelaBoat_ws/install/welaboat_bringup/lib/python3.10/site-packages",
+    "/home/riba/GitProject/LIUYU/WelaBoat_ws/install/vision_lidar_capture/lib/python3.10/site-packages",
+    "/home/riba/GitProject/LIUYU/WelaBoat_ws/install/stereo_disparity/lib/python3.10/site-packages",
+    "/home/riba/GitProject/LIUYU/WelaBoat_ws/install/lidar_vision_fusion/lib/python3.10/site-packages",
+    "/home/riba/GitProject/LIUYU/WelaBoat_ws/build/fastscnn_segmenter",
+    "/home/riba/GitProject/LIUYU/WelaBoat_ws/install/fastscnn_segmenter/lib/python3.10/site-packages",
+    "/home/riba/GitProject/LIUYU/WelaBoat_ws/install/camera_driver/lib/python3.10/site-packages",
+    "/opt/ros/humble/lib/python3.10/site-packages",
+    "/opt/ros/humble/local/lib/python3.10/dist-packages"
+  ],
+  "python.analysis.extraPaths": [
+    "/home/riba/GitProject/LIUYU/WelaBoat_ws/build/yolov5_detector",
+    "/home/riba/GitProject/LIUYU/WelaBoat_ws/install/yolov5_detector/lib/python3.10/site-packages",
+    "/home/riba/GitProject/LIUYU/WelaBoat_ws/install/welaboat_bringup/lib/python3.10/site-packages",
+    "/home/riba/GitProject/LIUYU/WelaBoat_ws/install/vision_lidar_capture/lib/python3.10/site-packages",
+    "/home/riba/GitProject/LIUYU/WelaBoat_ws/install/stereo_disparity/lib/python3.10/site-packages",
+    "/home/riba/GitProject/LIUYU/WelaBoat_ws/install/lidar_vision_fusion/lib/python3.10/site-packages",
+    "/home/riba/GitProject/LIUYU/WelaBoat_ws/build/fastscnn_segmenter",
+    "/home/riba/GitProject/LIUYU/WelaBoat_ws/install/fastscnn_segmenter/lib/python3.10/site-packages",
+    "/home/riba/GitProject/LIUYU/WelaBoat_ws/install/camera_driver/lib/python3.10/site-packages",
+    "/opt/ros/humble/lib/python3.10/site-packages",
+    "/opt/ros/humble/local/lib/python3.10/dist-packages"
+  ]
+}

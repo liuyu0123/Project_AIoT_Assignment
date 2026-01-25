@@ -110,6 +110,32 @@ bash fillback.sh /home/riba/GitProject/LIUYU/WelaBoat_ws/record/Target3DNew/rosb
 
 
 
+
+####################### ROS2 DEBUG ######################
+# 1. colcon build所有节点，只要有修改，都需要重新编译。（可以选择只编译修改的节点）
+# 注意：需要调试的节点，必须使用 --cmake-args -DCMAKE_BUILD_TYPE=Debug 进行编译，否则无法调试
+colcon build --packages-select lidar_vision_fusion --cmake-args -DCMAKE_BUILD_TYPE=Debug
+
+# 2. 启动节点
+source install/setup.bash
+ros2 launch welaboat_bringup welaboat_debug.launch.py
+
+# 3. 播放bag，建议从指定时刻开始播放
+# 通过rviz或者foxglove查看数据，记住时间戳。
+--start-offset # 跳过多少秒（相对起始时刻的偏移量，不是绝对时间戳）
+--duration # 持续多少秒
+ros2 bag play your_file.db3 --start-offset 120
+ros2 bag play your_file.db3 --start-offset 120 --duration 5
+ros2 bag play /home/riba/GitProject/LIUYU/WelaBoat_ws/record/Target3DNew/rosbag2_2026_01_24-16_31_52/rosbag2_2026_01_24-16_31_52_0.mcap
+
+
+# 4. 进入vscode，打断点调试
+
+
+
+
+
+
 ####################### ROS2 LAUNCH ######################
 # 一键启动整个链路
 ros2 launch welaboat_bringup welaboat.launch.py
