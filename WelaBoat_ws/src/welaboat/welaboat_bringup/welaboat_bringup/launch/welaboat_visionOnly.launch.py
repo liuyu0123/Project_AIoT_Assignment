@@ -36,18 +36,6 @@ def generate_launch_description():
                 {'imu_topic': "unilidar/imu"}]
     )
 
-    unilidar_static_tf = Node(
-        package='tf2_ros',
-        executable='static_transform_publisher',
-        name='unilidar_static_tf_node',
-        arguments=[
-            '0', '0', '0',
-            '0', '0', '0',
-            'base_link',
-            'unilidar_lidar'
-        ],
-    )
-
     multi_lidar_merge = Node(
       package='vision_lidar_capture',
       executable='multi_lidar_merge',
@@ -117,13 +105,12 @@ def generate_launch_description():
 
     return LaunchDescription([
         camera_driver,
-        lidar_driver,
-        unilidar_static_tf,
-        multi_lidar_merge,
+        # lidar_driver,
+        # multi_lidar_merge,
         camera_rectify,
         stereo_disparity,
         yolov5_detector,
         # fastscnn_segmenter_citys,
         fastscnn_segmenter_water,
-        lidar_vision_fusion,
+        # lidar_vision_fusion,
     ])

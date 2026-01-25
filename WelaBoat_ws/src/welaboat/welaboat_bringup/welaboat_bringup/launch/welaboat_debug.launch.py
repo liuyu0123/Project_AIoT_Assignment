@@ -112,18 +112,25 @@ def generate_launch_description():
         package='lidar_vision_fusion',
         executable='lidar_vision_fusion',
         name='lidar_vision_fusion_node',
-        output='screen'
+        output='screen',
+        parameters=[{'use_sim_time': True}],
+        remappings=[
+            # 输出
+            ('/fused/freespace',          ['/fused/freespace_debug']),
+            ('/fused/objects',            ['/fused/objects_debug']),
+            ('/fused/objects_markers',    ['/fused/objects_markers_debug']),
+        ]
     )
 
     return LaunchDescription([
-        camera_driver,
-        lidar_driver,
-        unilidar_static_tf,
-        multi_lidar_merge,
-        camera_rectify,
-        stereo_disparity,
-        yolov5_detector,
+        # camera_driver,
+        # lidar_driver,
+        # unilidar_static_tf,
+        # multi_lidar_merge,
+        # camera_rectify,
+        # stereo_disparity,
+        # yolov5_detector,
         # fastscnn_segmenter_citys,
-        fastscnn_segmenter_water,
+        # fastscnn_segmenter_water,
         lidar_vision_fusion,
     ])

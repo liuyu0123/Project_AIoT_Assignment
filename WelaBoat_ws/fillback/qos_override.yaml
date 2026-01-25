@@ -1,0 +1,12 @@
+/**:
+  ros__parameters:
+    qos_overrides:
+      /tf:
+        reliability: reliable
+        durability: volatile
+      /tf_static:
+        reliability: reliable
+        durability: transient_local
+      /fused/objects:
+        reliability: reliable
+        durability: volatile

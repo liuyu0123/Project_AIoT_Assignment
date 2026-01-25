@@ -5,3 +5,4 @@ conda deactivate
 conda deactivate
 source install/setup.bash
 ros2 launch welaboat_bringup welaboat.launch.py
+# ros2 launch welaboat_bringup welaboat_visionOnly.launch.py

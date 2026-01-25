@@ -63,12 +63,83 @@ ros2 run fastscnn_segmenter fastscnn_segmenter_node \
   -p num_classes:=2
 
 
-
+# 激光雷达USB接口权限
+# sudo chmod 666 /dev/ttyUSB0
 # 查看点云质量
 rviz2 -d src/drivers/unitree_lidar_ros2/rviz/view.rviz 
 
 
 
+####################### ROS2 PNG&PCD RECORD [FOR CALIBRATION] ######################
+# 先运行run_capture.sh
+# 再新开一个终端，运行
+ros2 run vision_lidar_capture vision_lidar_capture
+# 检查图像是否符合要求
+ros2 run camera_driver camera_viewer /camera/left/image_raw
 
+
+
+####################### ROS2 BAG RECORD ######################
+# 录制数据
+ros2 bag record -a
+# 录制数据，按照--max-bag-duration设定的时间间隔分包（直接删掉无法play）
+ros2 bag record -a --max-bag-duration=10
+# 录制数据，mcap格式
+ros2 bag record -a --max-bag-duration=10 --storage mcap
+
+# 播放数据
+ros2 bag play rosbag2_2026_01_23-11_28_49/
+# 循环播放
+ros2 bag play -l rosbag2_2026_01_23-11_28_49/
+
+
+####################### ROS2 BAG PLAY ######################
+# 纸板目标
+ros2 bag play -l /home/riba/GitProject/LIUYU/WelaBoat_ws/record/TargetBoardData/rosbag2_2026_01_24-15_27_37/
+# 3D目标检测
+ros2 bag play -l /home/riba/GitProject/LIUYU/WelaBoat_ws/record/TargetBoardData/rosbag2_2026_01_24-15_27_37/rosbag2_2026_01_24-15_27_37_0.mcap
+
+
+# 获取bag信息
+ros2 bag info /home/riba/GitProject/LIUYU/WelaBoat_ws/record/Target3DNew/rosbag2_2026_01_24-16_31_52_fillback_20260124_222024/rosbag2_2026_01_24-16_31_52_fillback_20260124_222024_0.db3
+
+####################### ROS2 BAG FILLBACK ######################
+# ros2 launch welaboat_bringup fillback.launch.py
+cd ws
+bash fillback.sh /home/riba/GitProject/LIUYU/WelaBoat_ws/record/Target3DNew/rosbag2_2026_01_24-16_31_52/rosbag2_2026_01_24-16_31_52_1.mcap
+
+
+
+
+####################### ROS2 DEBUG ######################
+# 1. colcon build所有节点，只要有修改，都需要重新编译。（可以选择只编译修改的节点）
+# 注意：需要调试的节点，必须使用 --cmake-args -DCMAKE_BUILD_TYPE=Debug 进行编译，否则无法调试
+colcon build --packages-select lidar_vision_fusion --cmake-args -DCMAKE_BUILD_TYPE=Debug
+
+# 2. 启动节点
+source install/setup.bash
+ros2 launch welaboat_bringup welaboat_debug.launch.py
+
+# 3. 播放bag，建议从指定时刻开始播放
+# 通过rviz或者foxglove查看数据，记住时间戳。
+--start-offset # 跳过多少秒（相对起始时刻的偏移量，不是绝对时间戳）
+--duration # 持续多少秒
+ros2 bag play your_file.db3 --start-offset 120
+ros2 bag play your_file.db3 --start-offset 120 --duration 5
+ros2 bag play /home/riba/GitProject/LIUYU/WelaBoat_ws/record/Target3DNew/rosbag2_2026_01_24-16_31_52/rosbag2_2026_01_24-16_31_52_0.mcap \
+  --clock --start-offset 6.56862448
+
+# 左边问题时间通过foxglove查看，右边通过ros2 bag info查看  
+1769243519.465698421 - 1769243512.897073941 = 6.56862448
+ros2 bag info /home/riba/GitProject/LIUYU/WelaBoat_ws/record/Target3DNew/rosbag2_2026_01_24-16_31_52/rosbag2_2026_01_24-16_31_52_0.mcap
+
+# 4. 进入vscode，打断点调试
+
+
+
+
+
+
+####################### ROS2 LAUNCH ######################
 # 一键启动整个链路
 ros2 launch welaboat_bringup welaboat.launch.py
