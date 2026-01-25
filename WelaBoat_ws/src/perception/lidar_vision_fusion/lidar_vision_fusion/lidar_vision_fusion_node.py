@@ -119,7 +119,7 @@ class LidarVisionFusionNode(Node):
             return
 
         # 更新时间戳（非常重要！）
-        now = self.get_clock()->now().to_msg()
+        now = self.get_clock().now().to_msg()
         for m in self.latest_marker_array.markers:
             m.header.stamp = now
 
