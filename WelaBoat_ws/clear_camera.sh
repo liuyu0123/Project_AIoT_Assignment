@@ -1,0 +1,1 @@
+pkill -f camera_driver

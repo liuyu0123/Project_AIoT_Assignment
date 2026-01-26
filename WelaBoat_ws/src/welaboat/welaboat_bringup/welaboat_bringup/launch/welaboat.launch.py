@@ -1,4 +1,6 @@
 from launch import LaunchDescription
+from launch.actions import DeclareLaunchArgument
+from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
 from ament_index_python.packages import get_package_share_directory
 import os
@@ -8,6 +10,22 @@ import os
 """
 
 def generate_launch_description():
+    WelaBoat = LaunchConfiguration('WelaBoat')
+    System = LaunchConfiguration('System')
+    
+    welaboat = DeclareLaunchArgument(
+        'WelaBoat',
+        # default_value='/home/riba/GitProject/LIUYU/WelaBoat_ws',
+        default_value='/home/nvidia/Documents/LIUYU/WelaBoat_ws',
+        description='WelaBoat workspace root'
+    )
+    system = DeclareLaunchArgument(
+        'System',
+        # default_value='/home/riba',
+        default_value='/home/nvidia',
+        description='WelaBoat workspace root'
+    )
+
     # 相机驱动
     camera_driver = Node(
         package='camera_driver',
@@ -84,7 +102,8 @@ def generate_launch_description():
         package='yolov5_detector',
         executable='yolov5_detector_node',
         name='yolov5_detector_node',
-        parameters=[{'model_path': '/home/riba/GitProject/LIUYU/WelaBoat_ws/src/perception/yolov5_detector/model/yolov5s.pt'}],
+        # parameters=[{'model_path': '/home/riba/GitProject/LIUYU/WelaBoat_ws/src/perception/yolov5_detector/model/yolov5s.pt'}],
+        parameters=[{'model_path': [LaunchConfiguration('WelaBoat'),'/src/perception/yolov5_detector/model/yolov5s.pt']}],
         output='screen'
     )
 
@@ -93,18 +112,24 @@ def generate_launch_description():
         package='fastscnn_segmenter',
         executable='fastscnn_segmenter_node',
         name='fastscnn_segmenter_node',
-        parameters=[{'model_path': '/home/riba/Fast-SCNN-pytorch/weights/fast_scnn_citys.pth',
-                     'input_topic': '/camera/left/image_rect',
-                     'num_classes': 19}],
+        parameters=[{
+            # 'model_path': '/home/riba/Fast-SCNN-pytorch/weights/fast_scnn_citys.pth',
+            'model_path': [LaunchConfiguration('System'),'/Fast-SCNN-pytorch/weights/fast_scnn_citys.pth'],
+            'input_topic': '/camera/left/image_rect',
+            'num_classes': 19
+        }],
         output='screen'
     )
     fastscnn_segmenter_water = Node(
         package='fastscnn_segmenter',
         executable='fastscnn_segmenter_node',
         name='fastscnn_segmenter_node',
-        parameters=[{'model_path': '/home/riba/Fast-SCNN-pytorch/weights/fast_scnn_water.pth',
-                     'input_topic': '/camera/left/image_rect',
-                     'num_classes': 2}],
+        parameters=[{
+            # 'model_path': '/home/riba/Fast-SCNN-pytorch/weights/fast_scnn_water.pth',
+            'model_path': [LaunchConfiguration('System'),'/Fast-SCNN-pytorch/weights/fast_scnn_water.pth'],
+            'input_topic': '/camera/left/image_rect',
+            'num_classes': 2
+        }],
         output='screen'
     )
 
@@ -116,6 +141,8 @@ def generate_launch_description():
     )
 
     return LaunchDescription([
+        welaboat,
+        system,
         camera_driver,
         lidar_driver,
         unilidar_static_tf,

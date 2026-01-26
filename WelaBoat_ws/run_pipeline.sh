@@ -1,4 +1,4 @@
-if_launch=$1
+if_launch=${1:-0}
 
 colcon build
 source ~/miniconda3/bin/activate yolov5_env
@@ -10,6 +10,6 @@ conda deactivate
 source install/setup.bash
 
 if [ $if_launch -eq 1 ]; then
-    ros2 launch welaboat_bringup welaboat.launch.py
+    # ros2 launch welaboat_bringup welaboat.launch.py
+    ros2 launch welaboat_bringup welaboat_visionOnly.launch.py
 fi
-# ros2 launch welaboat_bringup welaboat_visionOnly.launch.py
