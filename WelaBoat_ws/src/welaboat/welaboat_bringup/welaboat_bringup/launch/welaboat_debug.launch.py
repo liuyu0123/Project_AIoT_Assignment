@@ -122,6 +122,19 @@ def generate_launch_description():
         ]
     )
 
+    freespace_shoreline = Node(
+        package='freespace_shoreline',
+        executable='freespace_shoreline_node',
+        name='freespace_shoreline_node',
+        output='screen',
+        parameters=[{'use_sim_time': True}],
+        remappings=[
+            # 输出
+            ('/freespace/shoreline/marker',          ['/freespace/shoreline/marker_debug']),
+        ]
+    )
+
+
     return LaunchDescription([
         # camera_driver,
         # lidar_driver,
@@ -133,4 +146,5 @@ def generate_launch_description():
         # fastscnn_segmenter_citys,
         # fastscnn_segmenter_water,
         lidar_vision_fusion,
+        freespace_shoreline,
     ])

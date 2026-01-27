@@ -263,9 +263,12 @@ class LidarVisionFusionNode(Node):
 
 
                 # === 尺寸 ===
-                marker.scale.x = det2d.bbox.size_x
-                marker.scale.y = det2d.bbox.size_y
-                # marker.scale.z = det2d.bbox.size.z
+                # marker.scale.x = det2d.bbox.size_x
+                # marker.scale.y = det2d.bbox.size_y
+                # # marker.scale.z = det2d.bbox.size.z
+                marker.scale.x = 1.0
+                marker.scale.y = 1.0
+                marker.scale.z = 2.0
 
                 # === 颜色（可按类别区分）===
                 marker.color.r = 0.1

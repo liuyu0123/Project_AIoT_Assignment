@@ -27,3 +27,8 @@ ros2 pkg create lidar_vision_fusion \
   --dependencies rclpy sensor_msgs cv_bridge std_msgs vision_msgs message_filters \
   --license Apache-2.0
 
+# freespace转二维河岸线
+ros2 pkg create freespace_shoreline \
+  --build-type ament_python \
+  --dependencies rclpy sensor_msgs cv_bridge std_msgs vision_msgs message_filters \
+  --license Apache-2.0
