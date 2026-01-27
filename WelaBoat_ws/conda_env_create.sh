@@ -34,3 +34,17 @@ pip uninstall opencv-python -y
 # step33. 创建软链接（关键！），将系统 opencv 软链到 conda 环境中
 ln -sf /usr/lib/python3/dist-packages/cv2*.so \
        ~/miniconda3/envs/yolov5_env/lib/python3.10/site-packages/cv2.so
+
+
+# 修复 yolov5_env 环境下 pytorch-cpu-only 版本
+# 1. 安装torchision
+source ~/miniconda3/bin/activate yolov5_env
+python3 -m pip install --no-cache ~/torchvision-0.20.0a0+afc54f7-cp310-cp310-linux_aarch64.whl
+# 2. 安装opencv-python
+pip install opencv-python
+# 3. 安装torch
+python3 -m pip install --no-cache ~/torch-2.5.0a0+872d972e41.nv24.08-cp310-cp310-linux_aarch64.whl
+# 4. 恢复numpy=1.x
+pip install numpy==1.26.4
+# 5. 卸载opencv-python
+pip uninstall opencv-python -y
