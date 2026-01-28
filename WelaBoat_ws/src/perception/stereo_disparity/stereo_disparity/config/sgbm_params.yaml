@@ -1,0 +1,22 @@
+# stereo_disparity/config/sgbm_params.yaml
+stereo_disparity:
+  ros__parameters:
+    # SGBM 参数
+    minDisparity: 0
+    numDisparities: 144   # 必须是 16 的倍数
+    blockSize: 11
+    P1: 864               # = 8 * 3 * blockSize^2
+    P2: 3456              # = 32 * 3 * blockSize^2
+    disp12MaxDiff: 1
+    uniquenessRatio: 15
+    speckleWindowSize: 100
+    speckleRange: 32
+    mode: 1               # cv2.STEREO_SGBM_MODE_SGBM_3WAY = 1
+
+    # Q 矩阵（4x4，按行展开）
+    Q_matrix: [
+      1.0, 0.0, 0.0, -264.06341552734375,
+      0.0, 1.0, 0.0, -196.86043167114258,
+      0.0, 0.0, 0.0, 507.460233392369,
+      0.0, 0.0, 0.007094403124236008, 0.0
+    ]

@@ -1,0 +1,1 @@
+ros2 bag record -a --max-bag-duration=10 --storage mcap
