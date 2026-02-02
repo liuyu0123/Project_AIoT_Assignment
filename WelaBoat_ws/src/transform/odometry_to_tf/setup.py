@@ -24,6 +24,7 @@ setup(
     },
     entry_points={
         'console_scripts': [
+            'odometry_to_tf = odometry_to_tf.odom_to_tf:main',
         ],
     },
 )
