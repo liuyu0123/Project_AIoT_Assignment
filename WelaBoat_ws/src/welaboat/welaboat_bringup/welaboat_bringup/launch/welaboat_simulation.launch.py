@@ -54,6 +54,33 @@ def generate_launch_description():
                 {'imu_topic': "unilidar/imu"}]
     )
 
+    # 激光点云接口转换
+    pointcloud_to_laserscan_convert = Node(
+        package='pointcloud_to_laserscan',
+        executable='pointcloud_to_laserscan_node',
+        name='pointcloud_to_laserscan_node',
+        output='screen',
+        parameters=[{
+            # 输入点云话题（注意：不是 'cloud_in'，是 'cloud_topic' 或直接用 remapping）
+            'target_frame': 'base_link',      # 目标坐标系
+            'transform_tolerance': 0.01,       # TF变换容差
+            'min_height': -0.3,               # 最小高度
+            'max_height': 0.3,                # 最大高度
+            'angle_min': -3.14159,            # 最小角度（-π）
+            'angle_max': 3.14159,             # 最大角度（π）
+            'angle_increment': 0.00435,       # 角度增量（约0.25度）
+            'scan_time': 0.1,                 # 扫描时间
+            'range_min': 0.0,                 # 最小距离
+            'range_max': 50.0,                # 最大距离
+            'use_inf': True,                  # 是否使用无穷大
+            'inf_epsilon': 1.0,
+        }],
+        remappings=[
+            ('cloud_in', '/unilidar/cloud'),   # 输入点云话题映射
+            ('scan', '/scan'),                  # 输出激光扫描话题映射
+        ]
+    )
+
     unilidar_static_tf = Node(
         package='tf2_ros',
         executable='static_transform_publisher',
@@ -153,6 +180,7 @@ def generate_launch_description():
         system,
         # camera_driver,
         lidar_driver,
+        pointcloud_to_laserscan_convert,
         unilidar_static_tf,
         multi_lidar_merge,
         # camera_rectify,
