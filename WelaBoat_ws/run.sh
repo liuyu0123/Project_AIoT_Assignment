@@ -137,6 +137,22 @@ ros2 bag info /home/riba/GitProject/LIUYU/WelaBoat_ws/record/Target3DNew/rosbag2
 
 
 
+####################### ROS2 导航 ######################
+# 启动 pointcloud_to_laserscan 点云转换为激光线
+ros2 run pointcloud_to_laserscan pointcloud_to_laserscan_node \
+  --ros-args \
+  -r cloud_in:=/unilidar/cloud \
+  -r scan:=/scan \
+  -p target_frame:=base_link \
+  -p min_height:=-0.3 \
+  -p max_height:=0.3
+
+
+# 启动 costmap 
+ros2 run nav2_costmap_2d costmap_server \
+  --ros-args \
+  -p use_sim_time:=false \
+  --params-file src/navigation/config/nav2_costmap_only.yaml
 
 
 
