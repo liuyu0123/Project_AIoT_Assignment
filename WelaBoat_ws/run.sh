@@ -205,7 +205,7 @@ ros2 launch nav2_bringup navigation_launch.py \
 
 # 方案3
 ros2 launch welaboat_bringup nav2_odom_only.launch.py
-
+ros2 launch welaboat_bringup nav2_odom_only.launch.py use_sim_time:=true
 
 
 ####################### ROS2 LAUNCH ######################
