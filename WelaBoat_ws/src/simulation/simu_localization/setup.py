@@ -25,6 +25,7 @@ setup(
     entry_points={
         'console_scripts': [
             'fake_odom = simu_localization.fake_odom:main',
+            'fake_odom_control = simu_localization.fake_odom_control:main',
         ],
     },
 )
