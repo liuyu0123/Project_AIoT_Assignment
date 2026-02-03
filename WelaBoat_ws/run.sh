@@ -191,6 +191,14 @@ colcon build --packages-select welaboat_bringup
 ros2 launch welaboat_bringup costmap_container.launch.py
 
 
+# 方案2：nav2_bringup
+ros2 launch nav2_bringup navigation_launch.py \
+  use_sim_time:=false \
+  params_file:=/绝对路径/nav2_minimal.yaml \
+  autostart:=true
+
+
+
 
 ####################### ROS2 LAUNCH ######################
 # 一键启动整个链路
