@@ -3,7 +3,8 @@ from launch_ros.actions import Node
 
 def generate_launch_description():
 
-    params = "src/welaboat/welaboat_bringup/welaboat_bringup/config/nav2_minimal.yaml"
+    # params = "src/welaboat/welaboat_bringup/welaboat_bringup/config/nav2_minimal.yaml"
+    params = "src/welaboat/welaboat_bringup/welaboat_bringup/config/nav2_param.yaml"
 
     return LaunchDescription([
 
