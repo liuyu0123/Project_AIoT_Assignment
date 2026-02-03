@@ -52,7 +52,7 @@ controller_server:
       sim_time: 1.7
       linear_granularity: 0.05
       angular_granularity: 0.025
-      transform_tolerance: 5.0
+      transform_tolerance: 0.2
       xy_goal_tolerance: 0.25
       trans_stopped_velocity: 0.25
       short_circuit_trajectory_evaluation: true
@@ -113,7 +113,7 @@ local_costmap:
       width: 20        # MUST be float
       height: 20       # MUST be float
       resolution: 0.2    # MUST be float
-      transform_tolerance: 5.0  # 允许的时间差
+      transform_tolerance: 0.2  # 允许的时间差
       plugins: ["obstacle_layer", "inflation_layer"]
 
       obstacle_layer:
