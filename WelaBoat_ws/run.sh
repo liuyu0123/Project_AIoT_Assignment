@@ -180,7 +180,7 @@ ros2 component load \
   nav2_costmap_2d::CostmapServer \
   --node-name local_costmap \
   --node-namespace /local_costmap \
-  --param-file src/navigation/config/costmap_server.yaml
+  --param-file src/navigation/config/costmap_server_component.yaml
 
 
 
