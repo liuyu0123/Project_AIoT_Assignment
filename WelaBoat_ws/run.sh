@@ -170,6 +170,21 @@ ros2 run nav2_costmap_2d nav2_costmap_2d \
   --ros-args \
   --params-file src/navigation/config/costmap.yaml
 
+# 通过容器组件的方式启动costmap_server
+# step1 新终端运行
+ros2 run rclcpp_components component_container
+# step2 新终端运行
+ros2 component load \
+  /ComponentManager \
+  nav2_costmap_2d \
+  nav2_costmap_2d::CostmapServer \
+  --node-name local_costmap \
+  --node-namespace /local_costmap \
+  --param-file src/navigation/config/costmap_server.yaml
+
+
+
+
 ####################### ROS2 LAUNCH ######################
 # 一键启动整个链路
 ros2 launch welaboat_bringup welaboat.launch.py
