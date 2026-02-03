@@ -182,7 +182,7 @@ def generate_launch_description():
         lidar_driver,
         pointcloud_to_laserscan_convert,
         unilidar_static_tf,
-        multi_lidar_merge,
+        # multi_lidar_merge,
         # camera_rectify,
         # stereo_disparity,
         # yolov5_detector,
