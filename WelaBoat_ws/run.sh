@@ -203,6 +203,8 @@ ros2 launch nav2_bringup navigation_launch.py \
   params_file:=src/welaboat/welaboat_bringup/welaboat_bringup/config/nav2_minimal.yaml \
   autostart:=true
 
+# 方案3
+ros2 launch welaboat_bringup nav2_odom_only.launch.py
 
 
 
