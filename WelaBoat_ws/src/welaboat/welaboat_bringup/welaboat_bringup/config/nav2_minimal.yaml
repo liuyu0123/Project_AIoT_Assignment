@@ -1,93 +1,109 @@
-# amcl会订阅map话题，先禁掉
-# amcl:
-#   ros__parameters:
-#     use_sim_time: false
+# =========================
+# Nav2 minimal (no map, no amcl)
+# =========================
 
+use_sim_time: false
+
+# -------------------------
+# Planner Server (必须有 global_costmap)
+# -------------------------
 planner_server:
   ros__parameters:
     expected_planner_frequency: 1.0
-    global_costmap:
-      enabled: false
-      plugin_names: []
-      plugin_types: []
+    planner_plugins: ["GridBased"]
 
+    GridBased:
+      plugin: "nav2_navfn_planner/NavfnPlanner"
+      tolerance: 0.5
+      use_astar: false
+      allow_unknown: true
+
+    global_costmap:
+      global_frame: odom
+      robot_base_frame: base_link
+      rolling_window: true
+      width: 60.0
+      height: 60.0
+      resolution: 0.5
+      track_unknown_space: false
+
+      plugin_names: ["obstacle_layer", "inflation_layer"]
+      plugin_types:
+        - "nav2_costmap_2d::ObstacleLayer"
+        - "nav2_costmap_2d::InflationLayer"
+
+      obstacle_layer:
+        plugin: "nav2_costmap_2d::ObstacleLayer"
+        observation_sources: scan
+        scan:
+          topic: /scan
+          data_type: LaserScan
+          marking: true
+          clearing: true
+          obstacle_range: 15.0
+          raytrace_range: 20.0
+
+      inflation_layer:
+        plugin: "nav2_costmap_2d::InflationLayer"
+        inflation_radius: 1.0
+        cost_scaling_factor: 3.0
+
+
+# -------------------------
+# Controller Server
+# -------------------------
 controller_server:
   ros__parameters:
-    use_sim_time: false
-    controller_frequency: 20.0
-    use_velocity_scaled_lookahead_dist: false
+    controller_frequency: 10.0
+    min_x_velocity_threshold: 0.001
+    min_theta_velocity_threshold: 0.001
+
     controller_plugins: ["FollowPath"]
+
     FollowPath:
       plugin: "dwb_core::DWBLocalPlanner"
-      critics: [
-        "RotateToGoal",
-        "Oscillation",
-        "ObstacleFootprint",
-        "GoalAlign",
-        "PathAlign",
-        "PathDist",
-        "GoalDist"
-      ]
+      debug_trajectory_details: false
+
+      min_vel_x: 0.0
+      max_vel_x: 1.0
+      min_vel_theta: -0.6
+      max_vel_theta: 0.6
+
+      acc_lim_x: 0.5
+      acc_lim_theta: 0.5
+
+      critics:
+        - RotateToGoal
+        - ObstacleFootprint
+        - GoalAlign
+        - PathAlign
+        - PathDist
+        - GoalDist
 
       RotateToGoal:
         scale: 32.0
 
-      Oscillation:
-        scale: 1.0
-
       ObstacleFootprint:
-        scale: 0.01
+        scale: 0.02
 
       GoalAlign:
         scale: 24.0
-        forward_point_distance: 0.325
+        forward_point_distance: 0.5
 
       PathAlign:
         scale: 32.0
-        forward_point_distance: 0.325
+        forward_point_distance: 0.5
 
       PathDist:
         scale: 32.0
 
       GoalDist:
         scale: 24.0
-    
-# global_costmap:
-#   ros__parameters:
-#     enabled: false
-#     # plugins:
-#     #   - obstacle_layer
-#     #   - inflation_layer
-#     # === 关键：显式声明插件名称和类型，禁止 static_layer ===
-#     plugin_names: []
-#     plugin_types: []
-
-global_costmap:
-  ros__parameters:
-    global_frame: odom
-    robot_base_frame: base_link
-    rolling_window: true
-    resolution: 0.5
-    width: 50.0
-    height: 50.0
-
-    plugins: ["obstacle_layer", "inflation_layer"]
-
-    obstacle_layer:
-      plugin: "nav2_costmap_2d::ObstacleLayer"
-      observation_sources: scan
-      scan:
-        topic: /scan
-        data_type: LaserScan
-        marking: true
-        clearing: true
-
-    inflation_layer:
-      plugin: "nav2_costmap_2d::InflationLayer"
-      inflation_radius: 1.0
 
 
-
+# -------------------------
+# Local Costmap (给 controller 用)
+# -------------------------
 local_costmap:
   ros__parameters:
     global_frame: odom
@@ -96,13 +112,13 @@ local_costmap:
     width: 20.0
     height: 20.0
     resolution: 0.2
-    # 显式声明只使用这两个插件
-    plugin_names: ["obstacle_layer", "inflation_layer"]
-    plugin_types: ["nav2_costmap_2d::ObstacleLayer", "nav2_costmap_2d::InflationLayer"]
+    update_frequency: 5.0
+    publish_frequency: 2.0
 
-    # plugins:
-    #   - obstacle_layer
-    #   - inflation_layer
+    plugin_names: ["obstacle_layer", "inflation_layer"]
+    plugin_types:
+      - "nav2_costmap_2d::ObstacleLayer"
+      - "nav2_costmap_2d::InflationLayer"
 
     obstacle_layer:
       plugin: "nav2_costmap_2d::ObstacleLayer"
@@ -112,7 +128,43 @@ local_costmap:
         data_type: LaserScan
         marking: true
         clearing: true
+        obstacle_range: 10.0
+        raytrace_range: 15.0
 
     inflation_layer:
       plugin: "nav2_costmap_2d::InflationLayer"
       inflation_radius: 0.8
+      cost_scaling_factor: 3.0
+
+
+# -------------------------
+# BT Navigator
+# -------------------------
+bt_navigator:
+  ros__parameters:
+    use_sim_time: false
+    default_bt_xml_filename: "navigate_w_replanning_and_recovery.xml"
+
+
+# -------------------------
+# Behavior Server
+# -------------------------
+behavior_server:
+  ros__parameters:
+    use_sim_time: false
+
+
+# -------------------------
+# Waypoint Follower
+# -------------------------
+waypoint_follower:
+  ros__parameters:
+    use_sim_time: false
+
+
+# -------------------------
+# Velocity smoother
+# -------------------------
+velocity_smoother:
+  ros__parameters:
+    use_sim_time: false
