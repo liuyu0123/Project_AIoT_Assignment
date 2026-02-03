@@ -194,6 +194,10 @@ ros2 launch welaboat_bringup costmap_container.launch.py
 
 ####################### ROS2 导航 NAVIGATION [方案2] ######################
 # 方案2：nav2_bringup
+# rm -rf build install log
+colcon build --symlink-install
+colcon build --packages-select welaboat_bringup --symlink-install
+source install/setup.bash
 ros2 launch nav2_bringup navigation_launch.py \
   use_sim_time:=false \
   params_file:=src/welaboat/welaboat_bringup/welaboat_bringup/config/nav2_minimal.yaml \

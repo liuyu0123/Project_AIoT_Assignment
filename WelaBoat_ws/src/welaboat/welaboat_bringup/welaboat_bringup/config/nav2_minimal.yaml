@@ -6,6 +6,10 @@
 planner_server:
   ros__parameters:
     expected_planner_frequency: 1.0
+    global_costmap:
+      enabled: false
+      plugin_names: []
+      plugin_types: []
 
 controller_server:
   ros__parameters:
@@ -51,9 +55,12 @@ controller_server:
 global_costmap:
   ros__parameters:
     enabled: false
-    plugins:
-      - obstacle_layer
-      - inflation_layer
+    # plugins:
+    #   - obstacle_layer
+    #   - inflation_layer
+    # === 关键：显式声明插件名称和类型，禁止 static_layer ===
+    plugin_names: []
+    plugin_types: []
 
 
 local_costmap:
@@ -64,10 +71,13 @@ local_costmap:
     width: 20.0
     height: 20.0
     resolution: 0.2
+    # 显式声明只使用这两个插件
+    plugin_names: ["obstacle_layer", "inflation_layer"]
+    plugin_types: ["nav2_costmap_2d::ObstacleLayer", "nav2_costmap_2d::InflationLayer"]
 
-    plugins:
-      - obstacle_layer
-      - inflation_layer
+    # plugins:
+    #   - obstacle_layer
+    #   - inflation_layer
 
     obstacle_layer:
       plugin: "nav2_costmap_2d::ObstacleLayer"
