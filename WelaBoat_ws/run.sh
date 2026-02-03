@@ -148,6 +148,7 @@ ros2 run pointcloud_to_laserscan pointcloud_to_laserscan_node \
   -p max_height:=0.3
 
 
+####################### ROS2 导航 NAVIGATION [方案1]（失败） ######################
 # 启动 costmap 
 ros2 run nav2_costmap_2d costmap_server \
   --ros-args \
@@ -191,10 +192,11 @@ colcon build --packages-select welaboat_bringup
 ros2 launch welaboat_bringup costmap_container.launch.py
 
 
+####################### ROS2 导航 NAVIGATION [方案2] ######################
 # 方案2：nav2_bringup
 ros2 launch nav2_bringup navigation_launch.py \
   use_sim_time:=false \
-  params_file:=/绝对路径/nav2_minimal.yaml \
+  params_file:=src/welaboat/welaboat_bringup/welaboat_bringup/config/nav2_minimal.yaml \
   autostart:=true
 
 
