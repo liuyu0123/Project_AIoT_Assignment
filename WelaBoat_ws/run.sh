@@ -184,6 +184,10 @@ ros2 component load \
   --node-namespace /local_costmap \
   --param-file src/navigation/config/costmap_server_component.yaml
 
+# 播包
+ros2 bag play -l rosbag2_2026_02_03-12_10_22_0.mcap --clock
+# 启动costmap_server
+colcon build --packages-select welaboat_bringup
 ros2 launch welaboat_bringup costmap_container.launch.py
 
 

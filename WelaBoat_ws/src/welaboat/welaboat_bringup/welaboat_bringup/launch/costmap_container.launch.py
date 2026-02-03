@@ -20,7 +20,7 @@ def generate_launch_description():
         name='local_costmap',
         namespace='/local_costmap',
         # 注意：这里建议使用绝对路径或 launch 文件替换机制，否则可能找不到文件
-        parameters=["src/navigation/config/costmap_server_component.yaml"], 
+        parameters=["src/welaboat/welaboat_bringup/welaboat_bringup/config/costmap_server_component.yaml"],
         remappings=[('...', '...')],
     )
 
