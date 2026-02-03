@@ -77,8 +77,8 @@ global_costmap:
       global_frame: odom
       robot_base_frame: base_link
       rolling_window: true
-      width: !!float 60.01        # MUST be float
-      height: !!float 60.01       # MUST be float
+      width: 60        # MUST be float
+      height: 60       # MUST be float
       resolution: 0.5    # MUST be float
       track_unknown_space: true
       plugins: ["obstacle_layer", "inflation_layer"]
@@ -110,8 +110,8 @@ local_costmap:
       global_frame: odom
       robot_base_frame: base_link
       rolling_window: true
-      width: !!float 20.01        # MUST be float
-      height: !!float 20.01       # MUST be float
+      width: 20        # MUST be float
+      height: 20       # MUST be float
       resolution: 0.2    # MUST be float
       plugins: ["obstacle_layer", "inflation_layer"]
 
