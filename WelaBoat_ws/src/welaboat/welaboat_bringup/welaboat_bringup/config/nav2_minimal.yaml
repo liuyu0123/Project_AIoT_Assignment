@@ -52,15 +52,40 @@ controller_server:
       GoalDist:
         scale: 24.0
     
+# global_costmap:
+#   ros__parameters:
+#     enabled: false
+#     # plugins:
+#     #   - obstacle_layer
+#     #   - inflation_layer
+#     # === 关键：显式声明插件名称和类型，禁止 static_layer ===
+#     plugin_names: []
+#     plugin_types: []
+
 global_costmap:
   ros__parameters:
-    enabled: false
-    # plugins:
-    #   - obstacle_layer
-    #   - inflation_layer
-    # === 关键：显式声明插件名称和类型，禁止 static_layer ===
-    plugin_names: []
-    plugin_types: []
+    global_frame: odom
+    robot_base_frame: base_link
+    rolling_window: true
+    resolution: 0.5
+    width: 50.0
+    height: 50.0
+
+    plugins: ["obstacle_layer", "inflation_layer"]
+
+    obstacle_layer:
+      plugin: "nav2_costmap_2d::ObstacleLayer"
+      observation_sources: scan
+      scan:
+        topic: /scan
+        data_type: LaserScan
+        marking: true
+        clearing: true
+
+    inflation_layer:
+      plugin: "nav2_costmap_2d::InflationLayer"
+      inflation_radius: 1.0
+
 
 
 local_costmap:
