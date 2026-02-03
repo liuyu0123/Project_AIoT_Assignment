@@ -154,6 +154,13 @@ ros2 run nav2_costmap_2d costmap_server \
   -p use_sim_time:=false \
   --params-file src/navigation/config/nav2_costmap_only.yaml
 
+ros2 run nav2_costmap_2d costmap_server \
+  --ros-args \
+  -r __node:=local_costmap \
+  -r __ns:=/local_costmap \
+  --params-file src/navigation/config/costmap_server.yaml
+
+
 ros2 run nav2_costmap_2d nav2_costmap_2d \
   --ros-args \
   -p use_sim_time:=false \
