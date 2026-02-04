@@ -39,7 +39,7 @@ controller_server:
     # DWB Controller
     FollowPath:
       plugin: "dwb_core::DWBLocalPlanner"
-      min_vel_x: 0.0
+      min_vel_x: 0.05
       max_vel_x: 0.8
       max_vel_y: 0.0
       min_vel_theta: -1.0
@@ -54,10 +54,11 @@ controller_server:
       angular_granularity: 0.025
       transform_tolerance: 0.2
       xy_goal_tolerance: 0.25
-      trans_stopped_velocity: 0.25
+      trans_stopped_velocity: 0.01
       short_circuit_trajectory_evaluation: true
       stateful: true
-      critics: ["RotateToGoal", "ObstacleFootprint", "GoalAlign", "PathAlign", "PathDist", "GoalDist"]
+      # critics: ["RotateToGoal", "ObstacleFootprint", "GoalAlign", "PathAlign", "PathDist", "GoalDist"]
+      critics: ["ObstacleFootprint", "GoalAlign", "PathAlign", "PathDist", "GoalDist"]
       ObstacleFootprint.scale: 32.0
       PathAlign.scale: 32.0
       PathAlign.forward_point_distance: 0.1
@@ -81,7 +82,8 @@ global_costmap:
       height: 60       # MUST be float
       resolution: 0.5    # MUST be float
       track_unknown_space: true
-      plugins: ["obstacle_layer", "inflation_layer"]
+      # plugins: ["obstacle_layer", "inflation_layer"]
+      plugins: ["static_layer"]
 
       obstacle_layer:
         plugin: "nav2_costmap_2d::ObstacleLayer"
@@ -101,6 +103,10 @@ global_costmap:
         inflation_radius: 1.0
         cost_scaling_factor: 3.0
 
+      static_layer:
+        plugin: "nav2_costmap_2d::StaticLayer"
+        enabled: false
+
 # ============ LOCAL COSTMAP (ODOM FRAME) ============
 local_costmap:
   local_costmap:
@@ -114,7 +120,8 @@ local_costmap:
       height: 20       # MUST be float
       resolution: 0.2    # MUST be float
       transform_tolerance: 0.2  # 允许的时间差
-      plugins: ["obstacle_layer", "inflation_layer"]
+      # plugins: ["obstacle_layer", "inflation_layer"]
+      plugins: ["static_layer"]
 
       obstacle_layer:
         plugin: "nav2_costmap_2d::ObstacleLayer"
@@ -133,6 +140,10 @@ local_costmap:
         plugin: "nav2_costmap_2d::InflationLayer"
         inflation_radius: 0.8
         cost_scaling_factor: 3.0
+
+      static_layer:
+        plugin: "nav2_costmap_2d::StaticLayer"
+        enabled: false
 
 # ============ BT NAVIGATOR ============
 # bt_navigator:
