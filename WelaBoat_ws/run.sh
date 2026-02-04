@@ -208,6 +208,11 @@ ros2 launch welaboat_bringup nav2_odom_only.launch.py
 ros2 launch welaboat_bringup nav2_odom_only.launch.py use_sim_time:=true
 
 
+# 带有反馈的导航仿真
+ros2 run simu_localization fake_odom_control use_sim_time:=true
+
+
+
 ####################### ROS2 LAUNCH ######################
 # 一键启动整个链路
 ros2 launch welaboat_bringup welaboat.launch.py
