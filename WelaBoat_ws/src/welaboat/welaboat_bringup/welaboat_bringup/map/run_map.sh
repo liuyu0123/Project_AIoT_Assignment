@@ -23,4 +23,6 @@ ros2 run tf2_ros static_transform_publisher 0 0 0 0 0 0 map odom
 #fix world
 ros2 launch nav2_bringup navigation_launch.py \
   params_file:=/absolute/path/to/nav2_flat_world_survival.yaml
+ros2 launch nav2_bringup navigation_launch.py \
+  params_file:=/home/riba/GitProject/LIUYU/WelaBoat_ws/src/welaboat/welaboat_bringup/welaboat_bringup/config/nav2_flat_world_survival.yaml
 
