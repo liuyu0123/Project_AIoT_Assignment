@@ -208,8 +208,18 @@ ros2 launch welaboat_bringup nav2_odom_only.launch.py
 ros2 launch welaboat_bringup nav2_odom_only.launch.py use_sim_time:=true
 
 
-# 带有反馈的导航仿真
+############################ 带有反馈的导航仿真 #####################
+#0. 编译 welaboat_bringup 即 nav 节点
+colcon build --packages-select welaboat_bringup --symlink-install
+source install/setup.bash
+#1. 启动 fake_odom_control
+ros2 run simu_localization fake_odom_control
 ros2 run simu_localization fake_odom_control use_sim_time:=true
+#2. 启动 nav2_bringup
+ros2 launch welaboat_bringup nav2_odom_only.launch.py
+ros2 launch welaboat_bringup nav2_odom_only.launch.py use_sim_time:=true
+#3. 启动 rviz
+rviz2 -d rviz/simulation.rviz
 
 
 
