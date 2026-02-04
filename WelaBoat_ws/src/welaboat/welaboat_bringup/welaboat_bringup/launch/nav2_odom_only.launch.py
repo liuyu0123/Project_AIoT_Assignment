@@ -17,8 +17,10 @@ def generate_launch_description():
         'robot_base_frame': 'base_link',
         'bt_loop_duration': 10,
         # 'default_bt_xml_filename': 'follow_point.xml',
-        'default_nav_to_pose_bt_xml': '/opt/ros/humble/share/nav2_bt_navigator/behavior_trees/follow_point.xml',
-        'default_nav_through_poses_bt_xml': '/opt/ros/humble/share/nav2_bt_navigator/behavior_trees/follow_point.xml',
+        # 'default_nav_to_pose_bt_xml': '/opt/ros/humble/share/nav2_bt_navigator/behavior_trees/follow_point.xml',
+        'default_nav_to_pose_bt_xml': '/opt/ros/humble/share/nav2_bt_navigator/behavior_trees/navigate_to_pose_w_replanning_and_recovery.xml',
+        # 'default_nav_through_poses_bt_xml': '/opt/ros/humble/share/nav2_bt_navigator/behavior_trees/follow_point.xml',
+        'default_nav_through_poses_bt_xml': '/opt/ros/humble/share/nav2_bt_navigator/behavior_trees/navigate_to_pose_w_replanning_and_recovery.xml',
         'goal_blackboard_id': 'goal',
         'goals_blackboard_id': 'goals',
         'path_blackboard_id': 'path',
@@ -38,6 +40,9 @@ def generate_launch_description():
             'nav2_truncate_path_action_bt_node',
             'nav2_pipeline_sequence_bt_node',
             'nav2_goal_updater_node_bt_node',
+            'nav2_recovery_node_bt_node',
+            'nav2_goal_updated_condition_bt_node',
+            'nav2_round_robin_node_bt_node',
         ]
         # 'plugin_lib_names':[
         #     'nav2_compute_path_to_pose_action_bt_node',
