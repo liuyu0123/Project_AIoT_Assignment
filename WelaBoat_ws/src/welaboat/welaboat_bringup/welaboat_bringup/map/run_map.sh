@@ -20,3 +20,7 @@ ros2 run tf2_ros static_transform_publisher 0 0 0 0 0 0 map odom
 
 #6 check goal in rviz
 
+#fix world
+ros2 launch nav2_bringup navigation_launch.py \
+  params_file:=/absolute/path/to/nav2_flat_world_survival.yaml
+
