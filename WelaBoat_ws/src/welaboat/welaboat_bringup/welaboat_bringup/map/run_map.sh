@@ -15,3 +15,6 @@ ros2 topic echo /map
 #5 fake_odom_control, nav2_bringup, rviz
 
 #6 check goal in rviz
+
+#fix1 map-odom transform
+ros2 run tf2_ros static_transform_publisher 0 0 0 0 0 0 map odom
