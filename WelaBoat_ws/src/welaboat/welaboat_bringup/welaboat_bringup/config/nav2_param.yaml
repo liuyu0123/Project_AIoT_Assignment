@@ -39,7 +39,7 @@ controller_server:
     # DWB Controller
     FollowPath:
       plugin: "dwb_core::DWBLocalPlanner"
-      min_vel_x: 0.05
+      min_vel_x: 0.0
       max_vel_x: 0.8
       max_vel_y: 0.0
       min_vel_theta: -1.0
@@ -58,7 +58,8 @@ controller_server:
       short_circuit_trajectory_evaluation: true
       stateful: true
       # critics: ["RotateToGoal", "ObstacleFootprint", "GoalAlign", "PathAlign", "PathDist", "GoalDist"]
-      critics: ["ObstacleFootprint", "GoalAlign", "PathAlign", "PathDist", "GoalDist"]
+      # critics: ["ObstacleFootprint", "GoalAlign", "PathAlign", "PathDist", "GoalDist"]
+      critics: ["GoalAlign", "PathAlign", "PathDist", "GoalDist"]
       ObstacleFootprint.scale: 32.0
       PathAlign.scale: 32.0
       PathAlign.forward_point_distance: 0.1
