@@ -81,9 +81,9 @@ global_costmap:
       width: 60        # MUST be float
       height: 60       # MUST be float
       resolution: 0.5    # MUST be float
-      track_unknown_space: true
+      track_unknown_space: false
       # plugins: ["obstacle_layer", "inflation_layer"]
-      plugins: ["static_layer"]
+      plugins: ["inflation_layer"]
 
       obstacle_layer:
         plugin: "nav2_costmap_2d::ObstacleLayer"
@@ -120,8 +120,9 @@ local_costmap:
       height: 20       # MUST be float
       resolution: 0.2    # MUST be float
       transform_tolerance: 0.2  # 允许的时间差
+      track_unknown_space: false
       # plugins: ["obstacle_layer", "inflation_layer"]
-      plugins: ["static_layer"]
+      plugins: ["inflation_layer"]
 
       obstacle_layer:
         plugin: "nav2_costmap_2d::ObstacleLayer"
