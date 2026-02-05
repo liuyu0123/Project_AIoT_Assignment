@@ -137,6 +137,89 @@ ros2 bag info /home/riba/GitProject/LIUYU/WelaBoat_ws/record/Target3DNew/rosbag2
 
 
 
+####################### ROS2 导航 ######################
+# 启动 pointcloud_to_laserscan 点云转换为激光线
+ros2 run pointcloud_to_laserscan pointcloud_to_laserscan_node \
+  --ros-args \
+  -r cloud_in:=/unilidar/cloud \
+  -r scan:=/scan \
+  -p target_frame:=base_link \
+  -p min_height:=-0.3 \
+  -p max_height:=0.3
+
+
+####################### ROS2 导航 NAVIGATION [方案1]（失败） ######################
+# 启动 costmap 
+ros2 run nav2_costmap_2d costmap_server \
+  --ros-args \
+  -p use_sim_time:=false \
+  --params-file src/navigation/config/nav2_costmap_only.yaml
+
+ros2 run nav2_costmap_2d costmap_server \
+  --ros-args \
+  -r __node:=local_costmap \
+  -r __ns:=/local_costmap \
+  --params-file src/navigation/config/costmap_server.yaml
+
+
+ros2 run nav2_costmap_2d nav2_costmap_2d \
+  --ros-args \
+  -p use_sim_time:=false \
+  --params-file src/navigation/config/nav2_costmap_only.yaml
+
+ros2 run nav2_costmap_2d nav2_costmap_2d \
+  --ros-args \
+  --params-file src/navigation/config/costmap.yaml
+
+# 通过容器组件的方式启动costmap_server
+# step1 新终端运行
+# ros2 run rclcpp_components component_container
+ros2 run rclcpp_components component_container --ros-args -r __node:=ComponentManager
+
+# step2 新终端运行
+ros2 component load \
+  /ComponentManager \
+  nav2_costmap_2d \
+  nav2_costmap_2d::CostmapServer \
+  --node-name local_costmap \
+  --node-namespace /local_costmap \
+  --param-file src/navigation/config/costmap_server_component.yaml
+
+# 播包
+ros2 bag play -l rosbag2_2026_02_03-12_10_22_0.mcap --clock
+# 启动costmap_server
+colcon build --packages-select welaboat_bringup
+ros2 launch welaboat_bringup costmap_container.launch.py
+
+
+####################### ROS2 导航 NAVIGATION [方案2] ######################
+# 方案2：nav2_bringup
+# rm -rf build install log
+colcon build --symlink-install
+colcon build --packages-select welaboat_bringup --symlink-install
+source install/setup.bash
+ros2 launch nav2_bringup navigation_launch.py \
+  use_sim_time:=false \
+  params_file:=src/welaboat/welaboat_bringup/welaboat_bringup/config/nav2_minimal.yaml \
+  autostart:=true
+
+# 方案3
+ros2 launch welaboat_bringup nav2_odom_only.launch.py
+ros2 launch welaboat_bringup nav2_odom_only.launch.py use_sim_time:=true
+
+
+############################ 带有反馈的导航仿真 #####################
+#0. 编译 welaboat_bringup 即 nav 节点
+colcon build --packages-select welaboat_bringup --symlink-install
+source install/setup.bash
+#1. 启动 fake_odom_control
+ros2 run simu_localization fake_odom_control
+ros2 run simu_localization fake_odom_control use_sim_time:=true
+#2. 启动 nav2_bringup
+ros2 launch welaboat_bringup nav2_odom_only.launch.py
+ros2 launch welaboat_bringup nav2_odom_only.launch.py use_sim_time:=true
+#3. 启动 rviz
+rviz2 -d rviz/simulation.rviz
 
 
 

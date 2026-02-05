@@ -1,8 +1,6 @@
 from setuptools import find_packages, setup
-import os
-from glob import glob
 
-package_name = 'welaboat_bringup'
+package_name = 'odometry_to_tf'
 
 setup(
     name=package_name,
@@ -12,10 +10,6 @@ setup(
         ('share/ament_index/resource_index/packages',
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
-        (os.path.join('share', package_name, 'launch'),
-         glob(os.path.join('welaboat_bringup', 'launch', '*.launch.py'))),
-        (os.path.join('share', package_name, 'config'),
-         glob(os.path.join('welaboat_bringup', 'config', '*'))),
     ],
     install_requires=['setuptools'],
     zip_safe=True,
@@ -30,6 +24,7 @@ setup(
     },
     entry_points={
         'console_scripts': [
+            'odometry_to_tf = odometry_to_tf.odom_to_tf:main',
         ],
     },
 )
