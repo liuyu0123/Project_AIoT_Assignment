@@ -1,0 +1,134 @@
+# ==========================================
+# Nav2 FLAT WORLD SURVIVAL CONFIG
+# Fake odom + Fake map + No sensors
+# ==========================================
+
+planner_server:
+  ros__parameters:
+    expected_planner_frequency: 1.0
+    planner_plugins: ["GridBased"]
+
+    GridBased:
+      plugin: "nav2_navfn_planner/NavfnPlanner"
+      tolerance: 0.5
+      use_astar: false
+      allow_unknown: true
+
+controller_server:
+  ros__parameters:
+    controller_frequency: 10.0
+
+    controller_plugins: ["FollowPath"]
+    goal_checker_plugins: ["goal_checker"]
+    progress_checker_plugin: "progress_checker"
+
+    progress_checker:
+      plugin: "nav2_controller::SimpleProgressChecker"
+      required_movement_radius: 0.05
+      movement_time_allowance: 999.0   # 🚑 几乎不 abort
+
+    goal_checker:
+      plugin: "nav2_controller::SimpleGoalChecker"
+      xy_tolerance: 0.2
+      yaw_tolerance: 0.5
+      stateful: false
+
+    FollowPath:
+      plugin: "dwb_core::DWBLocalPlanner"
+
+      # ====== 只允许前进 ======
+      min_vel_x: 0.05
+      max_vel_x: 0.3
+      min_vel_y: 0.0
+      max_vel_y: 0.0
+
+      min_vel_theta: -0.6
+      max_vel_theta: 0.6
+
+      acc_lim_x: 0.5
+      acc_lim_theta: 1.0
+      decel_lim_x: -0.5
+
+      vx_samples: 10
+      vtheta_samples: 20
+      sim_time: 1.0
+
+      transform_tolerance: 0.5
+      trans_stopped_velocity: 0.01
+
+      critics:
+        - PathAlign
+        - PathDist
+        - GoalDist
+
+      PathAlign.scale: 10.0
+      PathAlign.forward_point_distance: 0.2
+      PathDist.scale: 10.0
+      GoalDist.scale: 8.0
+
+# ======== GLOBAL COSTMAP (FAKE MAP) ========
+global_costmap:
+  global_costmap:
+    ros__parameters:
+      global_frame: map
+      robot_base_frame: base_link
+
+      update_frequency: 1.0
+      publish_frequency: 1.0
+
+      rolling_window: false
+      track_unknown_space: false
+
+      plugins: ["static_layer"]
+
+      static_layer:
+        plugin: "nav2_costmap_2d::StaticLayer"
+        enabled: true
+        map_subscribe_transient_local: true
+
+# ======== LOCAL COSTMAP (FLAT WORLD) ========
+local_costmap:
+  local_costmap:
+    ros__parameters:
+      global_frame: odom
+      robot_base_frame: base_link
+
+      update_frequency: 5.0
+      publish_frequency: 5.0
+
+      rolling_window: true
+      width: 10.0
+      height: 10.0
+      resolution: 0.2
+
+      plugins: ["inflation_layer"]
+
+      inflation_layer:
+        plugin: "nav2_costmap_2d::InflationLayer"
+        inflation_radius: 0.01
+        cost_scaling_factor: 0.0
+
+# ======== BT NAVIGATOR (最简单) ========
+bt_navigator:
+  ros__parameters:
+    global_frame: map
+    robot_base_frame: base_link
+    bt_loop_duration: 10
+    default_bt_xml_filename: "follow_path.xml"
+
+# ======== BEHAVIOR SERVER ========
+behavior_server:
+  ros__parameters:
+    global_frame: map
+    robot_base_frame: base_link
+
+# ======== VELOCITY SMOOTHER ========
+velocity_smoother:
+  ros__parameters:
+    smoothing_frequency: 20.0
+    feedback: "OPEN_LOOP"
+    max_velocity: [0.3, 0.0, 0.6]
+    min_velocity: [0.0, 0.0, -0.6]
+    max_accel: [0.5, 0.0, 1.0]
+    max_decel: [-0.5, 0.0, -1.0]
+    odom_topic: "odom"

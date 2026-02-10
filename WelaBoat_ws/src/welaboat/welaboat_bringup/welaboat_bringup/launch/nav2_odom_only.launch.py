@@ -71,7 +71,7 @@ def generate_launch_description():
 
 
     # params = "src/welaboat/welaboat_bringup/welaboat_bringup/config/nav2_param.yaml"
-    params = "/home/riba/GitProject/LIUYU/WelaBoat_ws/src/welaboat/welaboat_bringup/welaboat_bringup/config/nav2_param.yaml"
+    params = "/home/riba/GitProject/LIUYU/WelaBoat_ws/src/welaboat/welaboat_bringup/welaboat_bringup/config/nav2_params.yaml"
 
     return LaunchDescription([
         DeclareLaunchArgument(

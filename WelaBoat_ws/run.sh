@@ -222,6 +222,30 @@ ros2 launch welaboat_bringup nav2_odom_only.launch.py use_sim_time:=true
 rviz2 -d rviz/simulation.rviz
 
 
+############################ 带有反馈的导航仿真，含map的完整流程 #####################
+# 1. 新终端启动map
+# 1.1 启动map_server
+ros2 run nav2_map_server map_server --ros-args -p yaml_filename:=/home/riba/GitProject/LIUYU/WelaBoat_ws/src/welaboat/welaboat_bringup/welaboat_bringup/map/map.yaml
+# 1.2 新终端运行configure和activate
+ros2 lifecycle set /map_server configure
+ros2 lifecycle set /map_server activate
+# 1.3 验证map
+ros2 topic echo /map
+
+# 2. 启动odom
+ros2 run simu_localization fake_odom_control
+
+# 3. 新终端启动tf
+ros2 run tf2_ros static_transform_publisher 0 0 0 0 0 0 map odom
+
+# 4. 新终端启动nav2
+ros2 launch welaboat_bringup nav2_odom_only.launch.py
+
+# 5. 新终端启动rviz2
+rviz2 -d rviz/simulation.rviz
+
+
+
 
 ####################### ROS2 LAUNCH ######################
 # 一键启动整个链路

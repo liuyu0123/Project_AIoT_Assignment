@@ -4,12 +4,13 @@ Panels:
     Name: Displays
     Property Tree Widget:
       Expanded:
+        - /Global Options1
         - /TF1/Frames1
         - /TF1/Tree1
-        - /TF1/Tree1/odom1
-        - /TF1/Tree1/odom1/base_link1
         - /LaserScan1/Topic1
         - /Map1/Status1
+        - /Map1/Topic1
+        - /Map1/Update Topic1
       Splitter Ratio: 0.5
     Tree Height: 1382
   - Class: rviz_common/Selection
@@ -29,7 +30,7 @@ Panels:
     Experimental: false
     Name: Time
     SyncMode: 0
-    SyncSource: PointCloud2
+    SyncSource: ""
 Visualization Manager:
   Class: ""
   Displays:
@@ -58,9 +59,9 @@ Visualization Manager:
         All Enabled: true
         base_link:
           Value: true
-        odom:
+        map:
           Value: true
-        unilidar_lidar:
+        odom:
           Value: true
       Marker Scale: 1
       Name: TF
@@ -68,9 +69,9 @@ Visualization Manager:
       Show Axes: true
       Show Names: false
       Tree:
-        odom:
-          base_link:
-            unilidar_lidar:
+        map:
+          odom:
+            base_link:
               {}
       Update Interval: 0
       Value: true
@@ -189,17 +190,17 @@ Visualization Manager:
       Name: Map
       Topic:
         Depth: 5
-        Durability Policy: Volatile
+        Durability Policy: Transient Local
         Filter size: 10
         History Policy: Keep Last
         Reliability Policy: Reliable
-        Value: /local_costmap/costmap
+        Value: /map
       Update Topic:
         Depth: 5
         Durability Policy: Volatile
         History Policy: Keep Last
         Reliability Policy: Reliable
-        Value: /local_costmap/costmap_updates
+        Value: /map_updates
       Use Timestamp: false
       Value: true
     - Alpha: 1
@@ -218,7 +219,7 @@ Visualization Manager:
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
-    Fixed Frame: odom
+    Fixed Frame: map
     Frame Rate: 30
   Name: root
   Tools:
@@ -261,16 +262,16 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz_default_plugins/Orbit
-      Distance: 27.559619903564453
+      Distance: 62.80196762084961
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 1.39364755153656
-        Y: 4.503483772277832
-        Z: -0.006438663229346275
+        X: 9.605134010314941
+        Y: 11.20508861541748
+        Z: -0.8755959868431091
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
@@ -279,7 +280,7 @@ Visualization Manager:
       Pitch: 1.5697963237762451
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 6.278594493865967
+      Yaw: 6.273596286773682
     Saved: ~
 Window Geometry:
   Displays:
