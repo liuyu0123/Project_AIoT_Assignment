@@ -19,6 +19,12 @@ class MissionManager(Node):
         super().__init__('mission_manager')
         self.state = "IDLE"
 
+        # 超时或失败检测的几个成员变量
+        self.retry_count = 0
+        self.max_retries = 2
+        self.goal_timeout_sec = 60
+
+
         self.get_logger().info("Mission Manager Started")
 
         # --------------------------
@@ -82,6 +88,7 @@ class MissionManager(Node):
         )
 
         self.state = "SENDING_GOAL"
+        self.goal_start_time = self.get_clock().now()
         self._send_goal_future = self.nav_to_pose_client.send_goal_async(
             goal_msg,
             feedback_callback=self.feedback_callback
@@ -137,8 +144,16 @@ class MissionManager(Node):
         if status == GoalStatus.STATUS_SUCCEEDED:
             self.state = "ARRIVED"
             self.get_logger().info("Waypoint reached successfully.")
+            self.retry_count = 0
         else:
             self.get_logger().warn(f"Goal failed with status: {status}")
+            if self.retry_count < self.max_retries:
+                self.retry_count += 1
+                self.get_logger().warn(f"Retry {self.retry_count}")
+                self.send_next_goal()
+                return
+            else:
+                self.get_logger().error("Max retries reached, skipping waypoint.")
 
         self.current_index += 1
         self.send_next_goal()
@@ -150,6 +165,13 @@ class MissionManager(Node):
 
         feedback = feedback_msg.feedback
         # 这里可以打印剩余距离等信息（暂时不打印避免刷屏）
+        now = self.get_clock().now()
+        elapsed = (now - self.goal_start_time).nanoseconds / 1e9
+
+        if elapsed > self.goal_timeout_sec:
+            self.get_logger().warn("Goal timeout! Canceling...")
+            # 可以加入 cancel 逻辑
+
         pass
 
 
