@@ -245,6 +245,10 @@ ros2 launch welaboat_bringup nav2_odom_only.launch.py
 rviz2 -d rviz/simulation.rviz
 
 
+# navigation 导航仿真一键启动
+ros2 launch welaboat_bringup welaboat_navigation.launch.py
+
+
 
 
 ####################### ROS2 LAUNCH ######################
