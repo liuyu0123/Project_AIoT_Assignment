@@ -17,6 +17,7 @@ class MissionManager(Node):
 
     def __init__(self):
         super().__init__('mission_manager')
+        self.state = "IDLE"
 
         self.get_logger().info("Mission Manager Started")
 
@@ -66,6 +67,7 @@ class MissionManager(Node):
     def send_next_goal(self):
 
         if self.current_index >= len(self.waypoints):
+            self.state = "FINISHED"
             self.get_logger().info("All waypoints completed. Mission finished.")
             return
 
@@ -79,6 +81,7 @@ class MissionManager(Node):
             f"x={x}, y={y}, yaw={yaw}"
         )
 
+        self.state = "SENDING_GOAL"
         self._send_goal_future = self.nav_to_pose_client.send_goal_async(
             goal_msg,
             feedback_callback=self.feedback_callback
@@ -113,6 +116,7 @@ class MissionManager(Node):
 
         goal_handle = future.result()
 
+        self.state = "MOVING"
         if not goal_handle.accepted:
             self.get_logger().error("Goal rejected!")
             return
@@ -131,6 +135,7 @@ class MissionManager(Node):
         status = future.result().status
 
         if status == GoalStatus.STATUS_SUCCEEDED:
+            self.state = "ARRIVED"
             self.get_logger().info("Waypoint reached successfully.")
         else:
             self.get_logger().warn(f"Goal failed with status: {status}")
