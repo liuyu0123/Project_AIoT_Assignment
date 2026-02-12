@@ -31,7 +31,7 @@ class MissionManager(Node):
         # --------------------------
         # 读取 YAML 航点
         # --------------------------
-        pkg_path = get_package_share_directory('welaboat_mission')
+        pkg_path = get_package_share_directory('mission_manager')
         mission_file = os.path.join(pkg_path, 'config', 'mission.yaml')
 
         with open(mission_file, 'r') as f:
