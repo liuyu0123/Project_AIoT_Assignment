@@ -7,24 +7,49 @@ from rclpy.action import ActionClient
 from geometry_msgs.msg import PoseStamped
 from nav2_msgs.action import NavigateToPose
 from action_msgs.msg import GoalStatus
+import yaml
+import os
+from ament_index_python.packages import get_package_share_directory
+
 
 
 class MissionManager(Node):
 
     def __init__(self):
         super().__init__('mission_manager')
+        self.state = "IDLE"
+
+        # 超时或失败检测的几个成员变量
+        self.retry_count = 0
+        self.max_retries = 2
+        self.goal_timeout_sec = 60
+
 
         self.get_logger().info("Mission Manager Started")
 
         # --------------------------
         # 航点列表（map 坐标）
         # --------------------------
+        # self.waypoints = [
+        #     (2.0, 1.0, 0.0),
+        #     (4.0, 3.0, 1.57),
+        #     (6.0, 2.0, 3.14)
+        # ]
+        # --------------------------
+        # 读取 YAML 航点
+        # --------------------------
+        pkg_path = get_package_share_directory('mission_manager')
+        mission_file = os.path.join(pkg_path, 'config', 'mission.yaml')
+
+        with open(mission_file, 'r') as f:
+            data = yaml.safe_load(f)
+
         self.waypoints = [
-            (2.0, 1.0, 0.0),
-            (4.0, 3.0, 1.57),
-            (6.0, 2.0, 3.14)
+            (wp['x'], wp['y'], wp['yaw'])
+            for wp in data['waypoints']
         ]
 
+        self.get_logger().info(f"Loaded {len(self.waypoints)} waypoints from YAML.")
         self.current_index = 0
 
         # Action Client
@@ -48,6 +73,7 @@ class MissionManager(Node):
     def send_next_goal(self):
 
         if self.current_index >= len(self.waypoints):
+            self.state = "FINISHED"
             self.get_logger().info("All waypoints completed. Mission finished.")
             return
 
@@ -61,6 +87,8 @@ class MissionManager(Node):
             f"x={x}, y={y}, yaw={yaw}"
         )
 
+        self.state = "SENDING_GOAL"
+        self.goal_start_time = self.get_clock().now()
         self._send_goal_future = self.nav_to_pose_client.send_goal_async(
             goal_msg,
             feedback_callback=self.feedback_callback
@@ -95,6 +123,7 @@ class MissionManager(Node):
 
         goal_handle = future.result()
 
+        self.state = "MOVING"
         if not goal_handle.accepted:
             self.get_logger().error("Goal rejected!")
             return
@@ -113,9 +142,18 @@ class MissionManager(Node):
         status = future.result().status
 
         if status == GoalStatus.STATUS_SUCCEEDED:
+            self.state = "ARRIVED"
             self.get_logger().info("Waypoint reached successfully.")
+            self.retry_count = 0
         else:
             self.get_logger().warn(f"Goal failed with status: {status}")
+            if self.retry_count < self.max_retries:
+                self.retry_count += 1
+                self.get_logger().warn(f"Retry {self.retry_count}")
+                self.send_next_goal()
+                return
+            else:
+                self.get_logger().error("Max retries reached, skipping waypoint.")
 
         self.current_index += 1
         self.send_next_goal()
@@ -127,6 +165,13 @@ class MissionManager(Node):
 
         feedback = feedback_msg.feedback
         # 这里可以打印剩余距离等信息（暂时不打印避免刷屏）
+        now = self.get_clock().now()
+        elapsed = (now - self.goal_start_time).nanoseconds / 1e9
+
+        if elapsed > self.goal_timeout_sec:
+            self.get_logger().warn("Goal timeout! Canceling...")
+            # 可以加入 cancel 逻辑
+
         pass
 
 
