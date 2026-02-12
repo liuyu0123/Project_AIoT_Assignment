@@ -246,8 +246,11 @@ rviz2 -d rviz/simulation.rviz
 
 
 # navigation 导航仿真一键启动
+colcon build --packages-select welaboat_bringup mission_manager --symlink-install
+
 ros2 launch welaboat_bringup welaboat_navigation.launch.py
 
+ros2 run mission_manager mission_manager
 
 
 
