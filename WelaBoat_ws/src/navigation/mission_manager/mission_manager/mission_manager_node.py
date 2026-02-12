@@ -7,6 +7,10 @@ from rclpy.action import ActionClient
 from geometry_msgs.msg import PoseStamped
 from nav2_msgs.action import NavigateToPose
 from action_msgs.msg import GoalStatus
+import yaml
+import os
+from ament_index_python.packages import get_package_share_directory
+
 
 
 class MissionManager(Node):
@@ -19,12 +23,26 @@ class MissionManager(Node):
         # --------------------------
         # 航点列表（map 坐标）
         # --------------------------
+        # self.waypoints = [
+        #     (2.0, 1.0, 0.0),
+        #     (4.0, 3.0, 1.57),
+        #     (6.0, 2.0, 3.14)
+        # ]
+        # --------------------------
+        # 读取 YAML 航点
+        # --------------------------
+        pkg_path = get_package_share_directory('welaboat_mission')
+        mission_file = os.path.join(pkg_path, 'config', 'mission.yaml')
+
+        with open(mission_file, 'r') as f:
+            data = yaml.safe_load(f)
+
         self.waypoints = [
-            (2.0, 1.0, 0.0),
-            (4.0, 3.0, 1.57),
-            (6.0, 2.0, 3.14)
+            (wp['x'], wp['y'], wp['yaw'])
+            for wp in data['waypoints']
         ]
 
+        self.get_logger().info(f"Loaded {len(self.waypoints)} waypoints from YAML.")
         self.current_index = 0
 
         # Action Client
