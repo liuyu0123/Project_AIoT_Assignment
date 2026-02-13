@@ -11,7 +11,7 @@ header:
 status:
   status: 0
   service: 1
-latitude: 30.2749
+latitude: 30.2742
 longitude: 120.1551
 altitude: 10.0
 position_covariance: [1.0, 0.0, 0.0,
