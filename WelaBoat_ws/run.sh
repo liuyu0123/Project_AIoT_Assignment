@@ -253,6 +253,19 @@ ros2 launch welaboat_bringup welaboat_navigation.launch.py
 ros2 run mission_manager mission_manager
 
 
+# localization 定位模块
+colcon build --packages-select welaboat_localization
+source install/setup.bash
+ros2 launch welaboat_localization localization.launch.py
+# run imu (new terminal)
+bash src/localization/welaboat_localization/tools/fake_imu.sh
+# run gps (new terminal)
+bash src/localization/welaboat_localization/tools/fake_gps.sh
+# check tf
+ros2 run tf2_tools view_frames
+ros2 topic echo /tf
+
+
 
 ####################### ROS2 LAUNCH ######################
 # 一键启动整个链路
