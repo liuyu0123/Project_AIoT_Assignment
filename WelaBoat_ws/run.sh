@@ -266,6 +266,19 @@ ros2 run tf2_tools view_frames
 ros2 topic echo /tf
 
 
+# localization 定位模块，基于真实的飞控 GPS 模块
+# 启动 mavros
+ros2 launch mavros apm.launch fcu_url:=/dev/ttyACM0:115200
+# 检查 GPS 信号 （必须看到 status: 0 或 2）
+ros2 topic echo /mavros/global_position/raw/fix --once
+# 启动 robot_localization （静止 20 秒，等待系统稳定）
+ros2 launch welaboat_localization localization.launch.py
+# 录制 bag (启动后推着小车运动一段距离，然后 ctrl+c 停止录制)
+cd record/PixHawk_GPS
+bash record_bag_gps.sh
+
+
+
 
 ####################### ROS2 LAUNCH ######################
 # 一键启动整个链路
