@@ -1,3 +1,4 @@
+# sec参数：通过指令 date +%s 在终端中确认
 ros2 topic pub /imu/data sensor_msgs/msg/Imu "
 header:
   stamp:
