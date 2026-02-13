@@ -8,34 +8,44 @@ def generate_launch_description():
 
     pkg_path = get_package_share_directory('welaboat_localization')
 
-    ekf_config = os.path.join(pkg_path, 'config', 'ekf.yaml')
     ekf_local_config = os.path.join(pkg_path, 'config', 'ekf_local.yaml')
     ekf_global_config = os.path.join(pkg_path, 'config', 'ekf_global.yaml')
     navsat_config = os.path.join(pkg_path, 'config', 'navsat.yaml')
 
     return LaunchDescription([
+        # ----------------------------
+        # 0. 首先发布静态 TF: base_link -> gps_link
+        #    假设 GPS 安装在机器人中心正上方 0.5m 处
+        # ----------------------------
+        Node(
+            package='tf2_ros',
+            executable='static_transform_publisher',
+            name='gps_tf_publisher',
+            arguments=['0', '0', '0.5', '0', '0', '0', 'base_link', 'gps_link']
+            # 格式: x y z yaw pitch roll parent_frame child_frame
+            # 或者使用四元数: x y z qx qy qz qw parent_frame child_frame
+        ),
 
+        
         # ----------------------------
-        # EKF Node
+        # 1. 首先启动 EKF Local (world_frame: odom)
+        #    它发布 /odometry/filtered (即 odom->base_link)
         # ----------------------------
-        # Node(
-        #     package='robot_localization',
-        #     executable='ekf_node',
-        #     name='ekf_filter_node',
-        #     output='screen',
-        #     parameters=[ekf_config]
-        # ),
-        # Local EKF
         Node(
             package='robot_localization',
             executable='ekf_node',
             name='ekf_local',
             output='screen',
-            parameters=[ekf_local_config]
+            parameters=[ekf_local_config],
+            remappings=[
+                ('odometry/filtered', '/odometry/filtered')  # 明确指定输出话题
+            ]
         ),
 
         # ----------------------------
-        # NavSat Transform Node
+        # 2. 然后启动 NavSat Transform
+        #    它订阅 /odometry/filtered (来自 ekf_local)
+        #    发布 /odometry/gps
         # ----------------------------
         Node(
             package='robot_localization',
@@ -46,17 +56,24 @@ def generate_launch_description():
             remappings=[
                 ('imu/data', '/imu/data'),
                 ('gps/fix', '/gps/fix'),
-                ('odometry/filtered', '/odometry/filtered'),
+                ('odometry/filtered', '/odometry/filtered'),  # 来自 ekf_local
                 ('odometry/gps', '/odometry/gps')
             ]
         ),
 
-        # Global EKF
+        # ----------------------------
+        # 3. 最后启动 EKF Global (world_frame: map)
+        #    它订阅 /odometry/gps (来自 navsat_transform)
+        #    发布 map->odom
+        # ----------------------------
         Node(
             package='robot_localization',
             executable='ekf_node',
             name='ekf_global',
             output='screen',
-            parameters=[ekf_global_config]
+            parameters=[ekf_global_config],
+            remappings=[
+                ('odometry/filtered', '/odometry/filtered/global')  # 避免与 local 冲突
+            ]
         ),
     ])

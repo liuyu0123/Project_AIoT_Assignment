@@ -1,8 +1,10 @@
-# sec参数：通过指令 date +%s 在终端中确认
+#!/bin/bash
+CURRENT_TIME=$(date +%s)
+
 ros2 topic pub /imu/data sensor_msgs/msg/Imu "
 header:
   stamp:
-    sec: 1770953833
+    sec: $CURRENT_TIME
     nanosec: 0
   frame_id: 'base_link'
 orientation:
@@ -11,6 +13,8 @@ orientation:
   z: 0.0
   w: 1.0
 angular_velocity:
+  x: 0.0
+  y: 0.0
   z: 0.0
 linear_acceleration:
   x: 0.0
