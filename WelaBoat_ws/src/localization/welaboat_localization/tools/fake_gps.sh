@@ -1,5 +1,8 @@
 ros2 topic pub /gps/fix sensor_msgs/msg/NavSatFix "
 header:
+  stamp:
+    sec: 1770953833
+    nanosec: 0
   frame_id: 'gps_link'
 status:
   status: 0
