@@ -38,6 +38,7 @@ def generate_launch_description():
             output='screen',
             parameters=[ekf_local_config],
             remappings=[
+                ('imu/data', '/mavros/imu/data'),
                 ('odometry/filtered', '/odometry/filtered')  # 明确指定输出话题
             ]
         ),
@@ -54,8 +55,8 @@ def generate_launch_description():
             output='screen',
             parameters=[navsat_config],
             remappings=[
-                ('imu/data', '/imu/data'),
-                ('gps/fix', '/gps/fix'),
+                ('imu/data', '/mavros/imu/data'),
+                ('gps/fix', '/mavros/global_position/raw/fix'),
                 ('odometry/filtered', '/odometry/filtered'),  # 来自 ekf_local
                 ('odometry/gps', '/odometry/gps')
             ]

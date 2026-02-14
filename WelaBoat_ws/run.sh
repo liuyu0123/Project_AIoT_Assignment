@@ -273,6 +273,8 @@ ros2 launch mavros apm.launch fcu_url:=/dev/ttyACM0:115200
 ros2 topic echo /mavros/global_position/raw/fix --once
 # 启动 robot_localization （静止 20 秒，等待系统稳定）
 ros2 launch welaboat_localization localization.launch.py
+# 检查tf （应该有 map -> odom, odom -> base_link）
+ros2 topic echo /tf --once
 # 录制 bag (启动后推着小车运动一段距离，然后 ctrl+c 停止录制)
 cd record/PixHawk_GPS
 bash record_bag_gps.sh
