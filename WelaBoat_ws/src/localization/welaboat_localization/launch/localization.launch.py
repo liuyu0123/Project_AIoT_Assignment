@@ -26,7 +26,7 @@ def generate_launch_description():
             # 或者使用四元数: x y z qx qy qz qw parent_frame child_frame
         ),
 
-        
+
         # ----------------------------
         # 1. 首先启动 EKF Local (world_frame: odom)
         #    它发布 /odometry/filtered (即 odom->base_link)
@@ -74,6 +74,7 @@ def generate_launch_description():
             output='screen',
             parameters=[ekf_global_config],
             remappings=[
+                ('imu/data', '/mavros/imu/data'),
                 ('odometry/filtered', '/odometry/filtered/global')  # 避免与 local 冲突
             ]
         ),
