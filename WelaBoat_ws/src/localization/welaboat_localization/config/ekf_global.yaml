@@ -22,10 +22,17 @@ ekf_global:
 
     # 添加 IMU (姿态)
     imu0: /imu/data
+    # imu0_config: [false, false, false,
+    #               false, false, true,   # yaw
+    #               false, false, false,
+    #               false, false, true,   # yaw velocity
+    #               false, false, false]
+    # 修复版：不融合任何角速度，只融合 yaw 姿态
     imu0_config: [false, false, false,
                   false, false, true,   # yaw
                   false, false, false,
-                  false, false, true,   # yaw velocity
+                  false, false, false,  # 关闭 yaw velocity
                   false, false, false]
+
     imu0_differential: false
     imu0_remove_gravitational_acceleration: true
