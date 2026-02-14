@@ -29,4 +29,4 @@ ekf_filter_node:
                    false, false, false,
                    false, false, false]
     odom0_differential: false
-    odom0_frame_id: odom  # 告诉 EKF 这是 odom 坐标系下的数据
+    odom0_frame_id: map  # 告诉 EKF 这是 odom 坐标系下的数据

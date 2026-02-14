@@ -39,7 +39,7 @@ def generate_launch_description():
             remappings=[
                 ('imu/data', '/mavros/imu/data'),
                 ('gps/fix', '/mavros/global_position/raw/fix'),
-                ('odometry/filtered', '/odometry/filtered'),  # 来自 EKF 的反馈
+                # ('odometry/filtered', '/odometry/filtered'),  # 来自 EKF 的反馈
                 ('odometry/gps', '/odometry/gps')
             ]
         ),
@@ -53,6 +53,7 @@ def generate_launch_description():
             parameters=[ekf_config, {'use_sim_time': use_sim_time}],
             remappings=[
                 ('imu/data', '/mavros/imu/data'),
+                ('odometry/gps', '/odometry/gps'),
                 ('odometry/filtered', '/odometry/filtered')
             ]
         ),
