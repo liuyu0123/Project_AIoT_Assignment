@@ -28,4 +28,4 @@ navsat_transform:
     broadcast_utm_transform_as_parent_frame: false
     
     # 关键：使用 EKF 的 yaw 而不是等待 IMU 稳定
-    use_odometry_yaw: true  # 使用 /odometry/filtered 的航向
+    use_odometry_yaw: false  # 使用 /odometry/filtered 的航向

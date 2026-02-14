@@ -1,30 +1,32 @@
 ekf_filter_node:
   ros__parameters:
-
+    use_sim_time: false
     frequency: 30.0
     two_d_mode: true
 
     map_frame: map
-    odom_frame: odom
+    odom_frame: odom      # 保留但不使用
     base_link_frame: base_link
-    world_frame: odom
+    world_frame: map      # 关键：直接输出 map → base_link
 
     publish_tf: true
 
+    # IMU 作为姿态输入
     imu0: /imu/data
-    imu0_config: [false, false, false,
-                  false, false, true,
+    imu0_config: [false, false, false,   # X, Y, Z
+                  false, false, true,    # yaw
                   false, false, false,
-                  false, false, true,
+                  false, false, true,    # yaw velocity
                   false, false, false]
-
     imu0_differential: false
     imu0_remove_gravitational_acceleration: true
 
+    # GPS 作为位置输入（通过 navsat_transform 转换后的 /odometry/gps）
     odom0: /odometry/gps
-    odom0_config: [true, true, false,
-                  false, false, false,
-                  false, false, false,
-                  false, false, false,
-                  false, false, false]
+    odom0_config: [true, true, false,   # X, Y
+                   false, false, false, # roll, pitch, yaw
+                   false, false, false,
+                   false, false, false,
+                   false, false, false]
     odom0_differential: false
+    odom0_frame_id: odom  # 告诉 EKF 这是 odom 坐标系下的数据

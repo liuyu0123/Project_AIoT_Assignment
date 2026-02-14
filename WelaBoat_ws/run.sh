@@ -272,7 +272,7 @@ ros2 launch mavros apm.launch fcu_url:=/dev/ttyACM0:115200
 # 检查 GPS 信号 （必须看到 status: 0 或 2）
 ros2 topic echo /mavros/global_position/raw/fix --once
 # 启动 robot_localization （静止 20 秒，等待系统稳定）
-ros2 launch welaboat_localization localization.launch.py
+ros2 launch welaboat_localization localization_1ekf.launch.py
 # 检查tf （应该有 map -> odom, odom -> base_link）
 ros2 topic echo /tf --once
 # 录制 bag (启动后推着小车运动一段距离，然后 ctrl+c 停止录制)
@@ -291,7 +291,7 @@ ros2 bag play -l record/PixHawk_GPS/rosbag2_2026_02_14-11_29_58/rosbag2_2026_02_
   /mavros/global_position/raw/fix \
   --clock
 # 2. 启动节点
-ros2 launch welaboat_localization localization.launch.py use_sim_time:=true
+ros2 launch welaboat_localization localization_1ekf.launch.py use_sim_time:=true
 # 3. 检查TF
 ros2 run tf2_tools view_frames
 
