@@ -2,9 +2,12 @@ from launch import LaunchDescription
 from launch_ros.actions import Node
 from ament_index_python.packages import get_package_share_directory
 import os
+from launch.substitutions import LaunchConfiguration
+from launch.actions import DeclareLaunchArgument
 
 
 def generate_launch_description():
+    use_sim_time = LaunchConfiguration('use_sim_time', default='false')
 
     pkg_path = get_package_share_directory('welaboat_localization')
 
@@ -13,6 +16,11 @@ def generate_launch_description():
     navsat_config = os.path.join(pkg_path, 'config', 'navsat.yaml')
 
     return LaunchDescription([
+        DeclareLaunchArgument(
+            'use_sim_time',
+            default_value='false',
+            description='Use simulation time'
+        ),
         # ----------------------------
         # 0. 首先发布静态 TF: base_link -> gps_link
         #    假设 GPS 安装在机器人中心正上方 0.5m 处
@@ -21,7 +29,8 @@ def generate_launch_description():
             package='tf2_ros',
             executable='static_transform_publisher',
             name='gps_tf_publisher',
-            arguments=['0', '0', '0.5', '0', '0', '0', 'base_link', 'gps_link']
+            arguments=['0', '0', '0.5', '0', '0', '0', 'base_link', 'gps_link'],
+            parameters=[{'use_sim_time': use_sim_time}],
             # 格式: x y z yaw pitch roll parent_frame child_frame
             # 或者使用四元数: x y z qx qy qz qw parent_frame child_frame
         ),
@@ -36,7 +45,8 @@ def generate_launch_description():
             executable='ekf_node',
             name='ekf_local',
             output='screen',
-            parameters=[ekf_local_config],
+            parameters=[ekf_local_config,
+                        {'use_sim_time': use_sim_time}],
             remappings=[
                 ('imu/data', '/mavros/imu/data'),
                 ('odometry/filtered', '/odometry/filtered')  # 明确指定输出话题
@@ -53,7 +63,8 @@ def generate_launch_description():
             executable='navsat_transform_node',
             name='navsat_transform',
             output='screen',
-            parameters=[navsat_config],
+            parameters=[navsat_config,
+                        {'use_sim_time': use_sim_time}],
             remappings=[
                 ('imu/data', '/mavros/imu/data'),
                 ('gps/fix', '/mavros/global_position/raw/fix'),
@@ -72,7 +83,8 @@ def generate_launch_description():
             executable='ekf_node',
             name='ekf_global',
             output='screen',
-            parameters=[ekf_global_config],
+            parameters=[ekf_global_config,
+                        {'use_sim_time': use_sim_time}],
             remappings=[
                 ('imu/data', '/mavros/imu/data'),
                 ('odometry/filtered', '/odometry/filtered/global')  # 避免与 local 冲突

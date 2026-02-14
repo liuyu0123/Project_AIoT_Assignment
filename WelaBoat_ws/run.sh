@@ -280,6 +280,20 @@ cd record/PixHawk_GPS
 bash record_bag_gps.sh
 
 
+# 调试流程
+# 1. 播放 BAG
+# 查看 bag 信息
+ros2 bag info record/PixHawk_GPS/rosbag2_2026_02_14-11_29_58/rosbag2_2026_02_14-11_29_58_0.mcap
+# 播放 bag
+ros2 bag play -l record/PixHawk_GPS/rosbag2_2026_02_14-11_29_58/rosbag2_2026_02_14-11_29_58_0.mcap \
+  --topics \
+  /mavros/imu/data \
+  /mavros/global_position/raw/fix \
+  --clock
+# 2. 启动节点
+ros2 launch welaboat_localization localization.launch.py use_sim_time:=true
+# 3. 检查TF
+ros2 run tf2_tools view_frames
 
 
 ####################### ROS2 LAUNCH ######################
